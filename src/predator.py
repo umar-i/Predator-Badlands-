@@ -178,6 +178,14 @@ class Dek(PredatorAgent):
             return self.perform_carry(target)
         elif action_type == ActionType.DROP:
             return self.perform_drop()
+        elif action_type == ActionType.SCAN:
+            return self.perform_scan()
+        elif action_type == ActionType.REQUEST_INFO:
+            return self.perform_request_info(target)
+        elif action_type == ActionType.SHARE_INFO:
+            return self.perform_share_info(target)
+        elif action_type == ActionType.FORM_ALLIANCE:
+            return self.perform_form_alliance(target)
         
         return ActionResult(action_type, False, 0, "Unknown action type")
     
@@ -314,6 +322,72 @@ class Dek(PredatorAgent):
         self.drop_thia()
         thia.be_dropped()
         return ActionResult(ActionType.DROP, True, 0, "Dropped Thia")
+    
+    def perform_scan(self):
+        from actions import ActionResult, ActionType
+        
+        if hasattr(self, 'thia_partner') and self.thia_partner and self.carrying_thia:
+            scan_result = self.thia_partner.perform_reconnaissance_scan()
+            if scan_result:
+                return ActionResult(ActionType.SCAN, True, 0, f"Thia performed scan: found {len(scan_result['threats'])} threats")
+            else:
+                return ActionResult(ActionType.SCAN, False, 0, "Thia scan failed")
+        
+        return ActionResult(ActionType.SCAN, False, 0, "No scanning capability available")
+    
+    def perform_request_info(self, target):
+        from actions import ActionResult, ActionType
+        from interaction_protocol import SyntheticInteractionManager, InteractionType
+        
+        if not target or self.distance_to(target) > 3:
+            return ActionResult(ActionType.REQUEST_INFO, False, 0, "Target out of range")
+        
+        manager = SyntheticInteractionManager()
+        result = manager.initiate_interaction(
+            self, target, InteractionType.INFO_REQUEST,
+            {'topic': 'adversary_weakness'}
+        )
+        
+        if result.success:
+            return ActionResult(ActionType.REQUEST_INFO, True, 0, f"Received intel: {result.response}")
+        else:
+            return ActionResult(ActionType.REQUEST_INFO, False, 0, result.response)
+    
+    def perform_share_info(self, target):
+        from actions import ActionResult, ActionType
+        from interaction_protocol import SyntheticInteractionManager, InteractionType
+        
+        if not target or self.distance_to(target) > 3:
+            return ActionResult(ActionType.SHARE_INFO, False, 0, "Target out of range")
+        
+        manager = SyntheticInteractionManager()
+        result = manager.initiate_interaction(
+            self, target, InteractionType.INFO_SHARE,
+            {'key': 'clan_status', 'value': f'Honour: {self.honour}'}
+        )
+        
+        if result.success:
+            return ActionResult(ActionType.SHARE_INFO, True, 0, f"Shared information with {target.name}")
+        else:
+            return ActionResult(ActionType.SHARE_INFO, False, 0, result.response)
+    
+    def perform_form_alliance(self, target):
+        from actions import ActionResult, ActionType
+        from interaction_protocol import SyntheticInteractionManager, InteractionType
+        
+        if not target or self.distance_to(target) > 3:
+            return ActionResult(ActionType.FORM_ALLIANCE, False, 0, "Target out of range")
+        
+        manager = SyntheticInteractionManager()
+        result = manager.initiate_interaction(
+            self, target, InteractionType.ALLIANCE_PROPOSAL
+        )
+        
+        if result.success:
+            manager.form_alliance(self, target)
+            return ActionResult(ActionType.FORM_ALLIANCE, True, 0, f"Alliance formed with {target.name}")
+        else:
+            return ActionResult(ActionType.FORM_ALLIANCE, False, 0, result.response)
     
     def create_trophy_from_kill(self, target):
         from actions import Trophy

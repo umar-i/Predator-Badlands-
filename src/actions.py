@@ -10,6 +10,10 @@ class ActionType(Enum):
     HUNT = "hunt"
     CARRY = "carry"
     DROP = "drop"
+    SCAN = "scan"
+    REQUEST_INFO = "request_info"
+    SHARE_INFO = "share_info"
+    FORM_ALLIANCE = "form_alliance"
 
 
 class Direction(Enum):
