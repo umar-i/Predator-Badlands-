@@ -426,48 +426,258 @@ class Thia(SyntheticAgent):
             self.repair_damage(0.5)
 
 
-class SyntheticEnemy(SyntheticAgent):
+class SyntheticScout(SyntheticAgent):
     
-    def __init__(self, name, x=0, y=0):
-        super().__init__(name, "Unknown-Corp", x, y, max_health=100, max_stamina=180)
-        self.hostile = True
-        self.target_priority = ["Thia", "Dek", "PredatorAgent"]
+    def __init__(self, name="Scout-Alpha", x=0, y=0):
+        super().__init__(name, "Advanced-Recon", x, y, max_health=90, max_stamina=220)
+        self.scout_mode = True
+        self.stealth_capability = True
+        self.reconnaissance_range = 6
+        self.collected_intel = {}
+        self.mission_objective = "gather_intelligence"
         
     @property
     def symbol(self):
-        return 'E'
+        return 'A'
     
-    def find_targets(self):
+    def activate_stealth(self):
+        if self.battery_level >= 15:
+            self.stealth_capability = True
+            self.consume_battery(15)
+            return True
+        return False
+    
+    def perform_deep_scan(self):
+        if not self.grid or self.battery_level < 25:
+            return None
+        
+        self.consume_battery(25)
+        
+        scan_data = {
+            'scan_type': 'deep_reconnaissance',
+            'range': self.reconnaissance_range,
+            'findings': {
+                'agents': [],
+                'terrain_features': [],
+                'strategic_positions': []
+            }
+        }
+        
+        scan_cells = self.grid.get_cells_in_radius(
+            self.x, self.y, self.reconnaissance_range
+        )
+        
+        for cell in scan_cells:
+            if cell.occupant and cell.occupant != self:
+                agent_data = {
+                    'name': cell.occupant.name,
+                    'type': cell.occupant.__class__.__name__,
+                    'position': cell.position,
+                    'health_estimate': self.estimate_agent_health(cell.occupant),
+                    'threat_level': self.assess_threat_level(cell.occupant)
+                }
+                scan_data['findings']['agents'].append(agent_data)
+            
+            if cell.terrain.terrain_type.name in ['TELEPORT', 'CANYON', 'HOSTILE']:
+                terrain_data = {
+                    'type': cell.terrain.terrain_type.name,
+                    'position': cell.position,
+                    'tactical_value': self.assess_tactical_value(cell)
+                }
+                scan_data['findings']['terrain_features'].append(terrain_data)
+        
+        self.collected_intel[f'scan_{len(self.collected_intel)}'] = scan_data
+        return scan_data
+    
+    def estimate_agent_health(self, agent):
+        if hasattr(agent, 'health_percentage'):
+            return agent.health_percentage
+        return "unknown"
+    
+    def assess_tactical_value(self, cell):
+        if cell.terrain.terrain_type.name == 'TELEPORT':
+            return "high_mobility"
+        elif cell.terrain.terrain_type.name == 'CANYON':
+            return "defensive_position"
+        elif cell.terrain.terrain_type.name == 'HOSTILE':
+            return "area_denial"
+        return "standard"
+    
+    def share_intelligence(self, target_agent):
+        from interaction_protocol import SyntheticInteractionManager, InteractionType
+        
+        if not self.collected_intel:
+            return False
+        
+        manager = SyntheticInteractionManager()
+        latest_intel = list(self.collected_intel.values())[-1]
+        
+        result = manager.initiate_interaction(
+            self, target_agent, InteractionType.INFO_SHARE,
+            {'key': 'reconnaissance_data', 'value': latest_intel}
+        )
+        
+        return result.success
+    
+    def normal_operation(self):
+        if self.mission_objective == "gather_intelligence":
+            if len(self.collected_intel) < 3:
+                self.perform_deep_scan()
+            else:
+                self.patrol_and_observe()
+        elif self.mission_objective == "support_allies":
+            self.seek_and_assist_allies()
+    
+    def patrol_and_observe(self):
+        valid_moves = self.get_valid_moves()
+        if valid_moves:
+            import random
+            self.move_to(*random.choice(valid_moves))
+    
+    def seek_and_assist_allies(self):
+        if not self.grid:
+            return
+        
+        nearby_agents = []
+        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, 4)
+        
+        for cell in nearby_cells:
+            if cell.occupant and cell.occupant != self:
+                if hasattr(cell.occupant, 'name') and cell.occupant.name in ['Dek', 'Thia']:
+                    nearby_agents.append(cell.occupant)
+        
+        if nearby_agents:
+            target = nearby_agents[0]
+            if self.distance_to(target) > 1:
+                self.move_towards_target(target)
+            else:
+                self.share_intelligence(target)
+
+
+class SyntheticMedic(SyntheticAgent):
+    
+    def __init__(self, name="Medic-Beta", x=0, y=0):
+        super().__init__(name, "Medical-Support", x, y, max_health=70, max_stamina=180)
+        self.healing_capability = True
+        self.medical_supplies = 5
+        self.repair_tools = 3
+        self.priority_targets = ['Dek', 'Thia']
+        
+    @property
+    def symbol(self):
+        return 'M'
+    
+    def perform_medical_scan(self, target):
+        if self.distance_to(target) > 1 or self.battery_level < 10:
+            return None
+        
+        self.consume_battery(10)
+        
+        medical_data = {
+            'target': target.name,
+            'health_status': target.health if hasattr(target, 'health') else 'unknown',
+            'max_health': target.max_health if hasattr(target, 'max_health') else 'unknown',
+            'damage_level': getattr(target, 'damage_level', 0),
+            'recommended_treatment': self.recommend_treatment(target)
+        }
+        
+        return medical_data
+    
+    def recommend_treatment(self, target):
+        if hasattr(target, 'health') and hasattr(target, 'max_health'):
+            health_percentage = (target.health / target.max_health) * 100
+            
+            if health_percentage < 25:
+                return "immediate_medical_attention"
+            elif health_percentage < 50:
+                return "medical_treatment_advised"
+            elif health_percentage < 75:
+                return "minor_treatment_suggested"
+            else:
+                return "good_health"
+        
+        if hasattr(target, 'damage_level'):
+            if target.damage_level > 60:
+                return "major_repairs_needed"
+            elif target.damage_level > 30:
+                return "maintenance_required"
+        
+        return "status_unknown"
+    
+    def provide_medical_assistance(self, target):
+        if self.distance_to(target) > 1 or self.medical_supplies <= 0:
+            return False
+        
+        if not hasattr(target, 'heal'):
+            return False
+        
+        self.medical_supplies -= 1
+        self.consume_battery(20)
+        
+        heal_amount = 25
+        target.heal(heal_amount)
+        
+        return True
+    
+    def provide_repair_assistance(self, target):
+        if self.distance_to(target) > 1 or self.repair_tools <= 0:
+            return False
+        
+        if not hasattr(target, 'repair_damage'):
+            return False
+        
+        self.repair_tools -= 1
+        self.consume_battery(15)
+        
+        repair_amount = 20
+        target.repair_damage(repair_amount)
+        
+        return True
+    
+    def find_patients(self):
         if not self.grid:
             return []
         
-        targets = []
-        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, 6)
+        patients = []
+        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, 5)
         
         for cell in nearby_cells:
             if cell.occupant and cell.occupant != self:
                 agent = cell.occupant
-                for priority_type in self.target_priority:
-                    if priority_type.lower() in agent.__class__.__name__.lower():
-                        targets.append((agent, self.target_priority.index(priority_type)))
-                        break
+                
+                needs_help = False
+                if hasattr(agent, 'health') and hasattr(agent, 'max_health'):
+                    if agent.health < agent.max_health * 0.7:
+                        needs_help = True
+                
+                if hasattr(agent, 'damage_level') and agent.damage_level > 30:
+                    needs_help = True
+                
+                if needs_help:
+                    priority = 1 if agent.name in self.priority_targets else 2
+                    patients.append((agent, priority))
         
-        return sorted(targets, key=lambda x: x[1])
+        return sorted(patients, key=lambda x: x[1])
     
     def normal_operation(self):
-        targets = self.find_targets()
-        if targets:
-            primary_target = targets[0][0]
-            if self.distance_to(primary_target) == 1:
-                self.attack_target(primary_target)
+        patients = self.find_patients()
+        
+        if patients:
+            target_agent, priority = patients[0]
+            
+            if self.distance_to(target_agent) > 1:
+                self.move_towards_target(target_agent)
             else:
-                self.move_towards_target(primary_target)
+                medical_scan = self.perform_medical_scan(target_agent)
+                if medical_scan:
+                    treatment = medical_scan['recommended_treatment']
+                    
+                    if 'medical' in treatment and self.medical_supplies > 0:
+                        self.provide_medical_assistance(target_agent)
+                    elif 'repair' in treatment and self.repair_tools > 0:
+                        self.provide_repair_assistance(target_agent)
         else:
             self.patrol_movement()
-    
-    def attack_target(self, target):
-        damage = random.randint(12, 20)
-        target.take_damage(damage)
     
     def move_towards_target(self, target):
         best_move = None
@@ -485,4 +695,102 @@ class SyntheticEnemy(SyntheticAgent):
     def patrol_movement(self):
         valid_moves = self.get_valid_moves()
         if valid_moves:
+            import random
+            self.move_to(*random.choice(valid_moves))
+
+
+class SyntheticEnemy(SyntheticAgent):
+    
+    def __init__(self, name, x=0, y=0):
+        super().__init__(name, "Unknown-Corp", x, y, max_health=100, max_stamina=180)
+        self.hostile = True
+        self.target_priority = ["Thia", "Dek", "PredatorAgent"]
+        self.combat_mode = "aggressive"
+        
+    @property
+    def symbol(self):
+        return 'E'
+    
+    def set_combat_mode(self, mode):
+        valid_modes = ["aggressive", "defensive", "stalking"]
+        if mode in valid_modes:
+            self.combat_mode = mode
+    
+    def find_targets(self):
+        if not self.grid:
+            return []
+        
+        targets = []
+        scan_range = 6 if self.combat_mode == "aggressive" else 4
+        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, scan_range)
+        
+        for cell in nearby_cells:
+            if cell.occupant and cell.occupant != self:
+                agent = cell.occupant
+                for priority_type in self.target_priority:
+                    if priority_type.lower() in agent.__class__.__name__.lower() or agent.name == priority_type:
+                        targets.append((agent, self.target_priority.index(priority_type)))
+                        break
+        
+        return sorted(targets, key=lambda x: x[1])
+    
+    def normal_operation(self):
+        targets = self.find_targets()
+        if targets:
+            primary_target = targets[0][0]
+            
+            if self.combat_mode == "stalking":
+                self.stalk_target(primary_target)
+            elif self.combat_mode == "defensive":
+                self.defensive_approach(primary_target)
+            else:
+                self.aggressive_approach(primary_target)
+        else:
+            self.search_and_patrol()
+    
+    def aggressive_approach(self, target):
+        if self.distance_to(target) == 1:
+            self.attack_target(target)
+        else:
+            self.move_towards_target(target)
+    
+    def defensive_approach(self, target):
+        distance = self.distance_to(target)
+        if distance == 1:
+            self.attack_target(target)
+        elif distance == 2:
+            pass
+        elif distance > 3:
+            self.move_towards_target(target)
+    
+    def stalk_target(self, target):
+        distance = self.distance_to(target)
+        if distance <= 3 and distance > 1:
+            pass
+        elif distance > 3:
+            self.move_towards_target(target)
+        elif distance == 1:
+            self.attack_target(target)
+    
+    def attack_target(self, target):
+        damage = 12 + (3 if self.combat_mode == "aggressive" else 0)
+        target.take_damage(damage)
+    
+    def move_towards_target(self, target):
+        best_move = None
+        best_distance = float('inf')
+        
+        for x, y in self.get_valid_moves():
+            distance = self.distance_to_position(x, y)
+            if distance < best_distance:
+                best_distance = distance
+                best_move = (x, y)
+        
+        if best_move:
+            self.move_to(best_move[0], best_move[1])
+    
+    def search_and_patrol(self):
+        valid_moves = self.get_valid_moves()
+        if valid_moves:
+            import random
             self.move_to(*random.choice(valid_moves))
