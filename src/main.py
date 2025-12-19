@@ -7,58 +7,113 @@ from grid import Grid
 from renderer import GridRenderer
 
 
-def test_grid_system():
-    print("=" * 50)
+def test_dek_actions():
+    from predator import Dek, PredatorFather, PredatorBrother
+    from creatures import WildlifeAgent
+    from actions import ActionType, Direction
+    from event_logger import EventLogger
+    
+    print("=" * 60)
     print("PREDATOR: BADLANDS SIMULATION")
-    print("Grid System Test")
-    print("=" * 50)
+    print("Phase 4: Dek Actions & Family Dynamics Test")
+    print("=" * 60)
     
-    grid = Grid(20, 20)
+    grid = Grid(25, 25)
     grid.generate_terrain()
-    
-    grid.create_teleport_pair(2, 2, 17, 17)
-    grid.create_teleport_pair(5, 15, 15, 5)
-    
     renderer = GridRenderer(grid)
+    logger = EventLogger()
     
-    print("\nGenerated World Map:")
+    dek = Dek(5, 5)
+    father = PredatorFather("Elder Kaail", 10, 10)
+    brother = PredatorBrother("Cetanu", 8, 8)
+    wildlife = WildlifeAgent("Desert Stalker", "predator", 6, 6)
+    
+    agents = [dek, father, brother, wildlife]
+    
+    for agent in agents:
+        agent.set_grid(grid)
+        grid.place_agent(agent, agent.x, agent.y)
+    
+    print(f"\nInitial Setup:")
+    print(f"  {dek}")
+    print(f"  {father} - Opinion of Dek: {father.opinion_of_dek}")
+    print(f"  {brother} - Rivalry: {brother.rivalry_with_dek}")
+    print(f"  {wildlife}")
+    
+    print(f"\nWorld Map:")
     renderer.render(use_colors=True)
-    renderer.render_legend()
-    renderer.render_statistics()
     
-    print("\n" + "=" * 50)
-    print("Testing Wrap-Around Movement")
-    print("=" * 50)
+    print(f"\n" + "=" * 60)
+    print("Testing Dek's Actions")
+    print("=" * 60)
     
-    test_positions = [
-        (0, 0, -1, 0),
-        (19, 10, 1, 0),
-        (10, 0, 0, -1),
-        (10, 19, 0, 1)
+    test_actions = [
+        (ActionType.MOVE, Direction.EAST),
+        (ActionType.ATTACK, wildlife),
+        (ActionType.REST, None),
+        (ActionType.STEALTH, None),
+        (ActionType.MOVE, Direction.NORTH)
     ]
     
-    for start_x, start_y, dx, dy in test_positions:
-        new_x, new_y = grid.wrap_coordinates(start_x + dx, start_y + dy)
-        print(f"  From ({start_x}, {start_y}) + ({dx}, {dy}) = ({new_x}, {new_y})")
+    for i, (action_type, target) in enumerate(test_actions):
+        logger.increment_step()
+        
+        print(f"\nStep {i+1}: {dek.name} performs {action_type.value}")
+        print(f"  Before: Health {dek.health}, Stamina {dek.stamina}, Honour {dek.honour}")
+        
+        result = dek.perform_action(action_type, target, target)
+        logger.log_action(dek, result)
+        
+        print(f"  Result: {result.message}")
+        print(f"  After: Health {dek.health}, Stamina {dek.stamina}, Honour {dek.honour}")
+        
+        if result.combat_result:
+            print(f"  Combat: {result.combat_result.damage_dealt} damage to {result.combat_result.defender.name}")
+            if result.combat_result.kill:
+                print(f"  KILL! {result.combat_result.defender.name} defeated")
+        
+        if result.trophy_collected:
+            trophy = result.trophy_collected
+            print(f"  Trophy: {trophy.name} (+{trophy.get_honour_value()} honour)")
+        
+        father_reaction = father.judge_dek_action(dek, result)
+        logger.log_clan_reaction(father, dek, father_reaction)
+        print(f"  Father reaction: {father_reaction.message}")
+        
+        brother_reaction = brother.react_to_dek_success(dek, result)
+        logger.log_clan_reaction(brother, dek, brother_reaction)
+        print(f"  Brother reaction: {brother_reaction.message}")
+        
+        if not wildlife.is_alive and i == 1:
+            print(f"  Trophy collection opportunity available!")
     
-    print("\n" + "=" * 50)
-    print("Testing Distance Calculation (Toroidal)")
-    print("=" * 50)
+    print(f"\n" + "=" * 60)
+    print("Final Status")
+    print("=" * 60)
     
-    distance_tests = [
-        (0, 0, 19, 19),
-        (0, 0, 10, 10),
-        (5, 5, 15, 15)
-    ]
+    print(f"\nDek Final Stats:")
+    print(f"  {dek}")
+    print(f"  Clan Rank: {dek.clan_rank}")
+    print(f"  Trophies: {len(dek.trophies)}")
     
-    for x1, y1, x2, y2 in distance_tests:
-        dist = grid.calculate_distance(x1, y1, x2, y2)
-        print(f"  Distance from ({x1}, {y1}) to ({x2}, {y2}): {dist}")
+    print(f"\nFamily Relationships:")
+    print(f"  Father Opinion: {father.opinion_of_dek} - {father.get_relationship_status()}")
+    print(f"  Brother Rivalry: {brother.rivalry_with_dek} - {brother.get_relationship_status()}")
     
-    print("\n" + "=" * 50)
-    print("Grid System Test Complete")
-    print("=" * 50)
+    print(f"\nSimulation Statistics:")
+    summary = logger.get_simulation_summary()
+    print(f"  Total Events: {summary['total_events']}")
+    print(f"  Combat Events: {summary['event_breakdown'].get('combat', 0)}")
+    print(f"  Kills: {summary['combat_stats']['total_kills']}")
+    print(f"  Trophies: {summary['trophy_summary']['total_trophies']}")
+    
+    logger.export_events_json('data/phase4_test.json')
+    print(f"\nEvent log exported to: data/phase4_test.json")
+    
+    print(f"\n" + "=" * 60)
+    print("Phase 4 Test Complete")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
-    test_grid_system()
+    test_dek_actions()
