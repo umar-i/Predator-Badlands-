@@ -158,6 +158,187 @@ class Dek(PredatorAgent):
             base_cost *= 2
         return base_cost
     
+    def perform_action(self, action_type, direction=None, target=None):
+        from actions import ActionResult, ActionType, Direction, CombatResult, Trophy
+        
+        if not self.can_act():
+            return ActionResult(action_type, False, 0, "Cannot act - not alive")
+        
+        if action_type == ActionType.MOVE:
+            return self.perform_move(direction)
+        elif action_type == ActionType.ATTACK:
+            return self.perform_attack(target)
+        elif action_type == ActionType.REST:
+            return self.perform_rest()
+        elif action_type == ActionType.COLLECT_TROPHY:
+            return self.perform_collect_trophy(target)
+        elif action_type == ActionType.STEALTH:
+            return self.perform_stealth()
+        elif action_type == ActionType.CARRY:
+            return self.perform_carry(target)
+        elif action_type == ActionType.DROP:
+            return self.perform_drop()
+        
+        return ActionResult(action_type, False, 0, "Unknown action type")
+    
+    def perform_move(self, direction):
+        from actions import ActionResult, ActionType, Direction
+        
+        if direction not in Direction:
+            return ActionResult(ActionType.MOVE, False, 0, "Invalid direction")
+        
+        dx, dy = direction.value
+        new_x = self.x + dx
+        new_y = self.y + dy
+        
+        base_cost = 5
+        if self.carrying_thia:
+            base_cost = 10
+        
+        if not self.consume_stamina(base_cost):
+            return ActionResult(ActionType.MOVE, False, 0, "Insufficient stamina")
+        
+        if self.move_to(new_x, new_y):
+            message = f"Moved {direction.name.lower()}"
+            if self.carrying_thia:
+                message += " (carrying Thia)"
+            return ActionResult(ActionType.MOVE, True, base_cost, message)
+        else:
+            self.restore_stamina(base_cost)
+            return ActionResult(ActionType.MOVE, False, 0, "Path blocked or invalid")
+    
+    def perform_attack(self, target):
+        from actions import ActionResult, ActionType, CombatResult, Trophy
+        import random
+        
+        if not target or not target.is_alive:
+            return ActionResult(ActionType.ATTACK, False, 0, "No valid target")
+        
+        if self.distance_to(target) > 1:
+            return ActionResult(ActionType.ATTACK, False, 0, "Target out of range")
+        
+        if not self.consume_stamina(15):
+            return ActionResult(ActionType.ATTACK, False, 0, "Insufficient stamina for attack")
+        
+        base_damage = random.randint(20, 35)
+        if self.stealth_active:
+            base_damage = int(base_damage * 1.5)
+            self.deactivate_stealth()
+        
+        target.take_damage(base_damage)
+        
+        kill = not target.is_alive
+        combat_result = CombatResult(self, target, base_damage, kill)
+        
+        result = ActionResult(ActionType.ATTACK, True, 15, f"Attacked {target.name}")
+        result.add_combat_result(combat_result)
+        
+        if kill:
+            self.gain_honour(5)
+            trophy = self.create_trophy_from_kill(target)
+            if trophy:
+                self.add_trophy(trophy)
+                result.add_trophy(trophy)
+        
+        return result
+    
+    def perform_rest(self):
+        from actions import ActionResult, ActionType
+        
+        stamina_gained = 20
+        health_gained = 5
+        
+        self.restore_stamina(stamina_gained)
+        self.heal(health_gained)
+        
+        message = f"Rested: +{stamina_gained} stamina, +{health_gained} health"
+        return ActionResult(ActionType.REST, True, 0, message)
+    
+    def perform_collect_trophy(self, target):
+        from actions import ActionResult, ActionType, Trophy
+        
+        if not target or target.is_alive:
+            return ActionResult(ActionType.COLLECT_TROPHY, False, 0, "Target must be dead to collect trophy")
+        
+        if self.distance_to(target) > 1:
+            return ActionResult(ActionType.COLLECT_TROPHY, False, 0, "Too far from target")
+        
+        if not self.consume_stamina(10):
+            return ActionResult(ActionType.COLLECT_TROPHY, False, 0, "Insufficient stamina")
+        
+        trophy = self.create_trophy_from_kill(target)
+        if trophy:
+            self.add_trophy(trophy)
+            result = ActionResult(ActionType.COLLECT_TROPHY, True, 10, f"Collected trophy from {target.name}")
+            result.add_trophy(trophy)
+            return result
+        
+        return ActionResult(ActionType.COLLECT_TROPHY, False, 10, "No trophy available")
+    
+    def perform_stealth(self):
+        from actions import ActionResult, ActionType
+        
+        if self.stealth_active:
+            self.deactivate_stealth()
+            return ActionResult(ActionType.STEALTH, True, 0, "Stealth deactivated")
+        else:
+            if self.consume_stamina(25):
+                self.activate_stealth()
+                return ActionResult(ActionType.STEALTH, True, 25, "Stealth activated")
+            else:
+                return ActionResult(ActionType.STEALTH, False, 0, "Insufficient stamina for stealth")
+    
+    def perform_carry(self, target):
+        from actions import ActionResult, ActionType
+        
+        if self.carrying_thia:
+            return ActionResult(ActionType.CARRY, False, 0, "Already carrying Thia")
+        
+        if not hasattr(target, 'model') or target.name != "Thia":
+            return ActionResult(ActionType.CARRY, False, 0, "Can only carry Thia")
+        
+        if self.distance_to(target) > 1:
+            return ActionResult(ActionType.CARRY, False, 0, "Too far from Thia")
+        
+        self.carry_thia(target)
+        target.be_carried_by(self)
+        return ActionResult(ActionType.CARRY, True, 0, "Now carrying Thia")
+    
+    def perform_drop(self):
+        from actions import ActionResult, ActionType
+        
+        if not self.carrying_thia:
+            return ActionResult(ActionType.DROP, False, 0, "Not carrying anyone")
+        
+        thia = self.thia_partner
+        self.drop_thia()
+        thia.be_dropped()
+        return ActionResult(ActionType.DROP, True, 0, "Dropped Thia")
+    
+    def create_trophy_from_kill(self, target):
+        from actions import Trophy
+        import random
+        
+        trophy_types = {
+            'WildlifeAgent': [('claw', 2), ('skull', 3)],
+            'SyntheticAgent': [('circuit', 1), ('core', 4)],
+            'BossAdversary': [('boss_part', 10), ('artifact', 15)]
+        }
+        
+        target_class = target.__class__.__name__
+        if target_class in trophy_types:
+            trophy_options = trophy_types[target_class]
+            trophy_name, trophy_value = random.choice(trophy_options)
+            
+            return Trophy(
+                f"{target.name} {trophy_name}",
+                trophy_name,
+                trophy_value,
+                target.name
+            )
+        
+        return None
+    
     def decide_action(self):
         if not self.can_act():
             return "rest"
