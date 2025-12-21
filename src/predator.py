@@ -461,66 +461,246 @@ class PredatorFather(PredatorAgent):
         self.disappointed_in_dek = True
         self.honour = 150
         self.clan_rank = "Elder"
+        self.trial_manager = None
+        self.last_judgment_turn = 0
+        self.judgment_cooldown = 5
+        self.approval_threshold = 30
+        self.rejection_threshold = -30
+        self.witnessed_actions = []
+        self.dek_reference = None
         
     @property
     def symbol(self):
         return 'F'
     
+    def set_trial_manager(self, manager):
+        self.trial_manager = manager
+    
+    def set_dek_reference(self, dek):
+        self.dek_reference = dek
+    
     def judge_dek_action(self, dek, action_result):
-        from clan_code import YautjaClanCode, ClanReaction, ClanRelationship
+        from clan_code import YautjaClanCode, ClanReaction, ClanRelationship, HonourableAction
         
         opinion_change = 0
         message = ""
+        action_required = None
         
         if hasattr(action_result, 'combat_result') and action_result.combat_result:
-            if action_result.combat_result.kill:
-                opinion_change += 3
-                message = f"{self.name} approves of Dek's successful hunt"
+            combat = action_result.combat_result
+            target_strength = YautjaClanCode.assess_target_strength(combat.defender)
+            
+            if combat.kill:
+                if target_strength >= 4:
+                    opinion_change += 8
+                    message = f"{self.name} is deeply impressed by Dek's worthy kill"
+                elif target_strength >= 2:
+                    opinion_change += 4
+                    message = f"{self.name} approves of Dek's successful hunt"
+                else:
+                    opinion_change -= 2
+                    message = f"{self.name} is unimpressed - the prey was weak"
             else:
-                opinion_change += 1
-                message = f"{self.name} acknowledges Dek's combat effort"
+                if target_strength >= 3:
+                    opinion_change += 2
+                    message = f"{self.name} respects Dek's courage against a strong foe"
+                else:
+                    opinion_change += 1
+                    message = f"{self.name} acknowledges Dek's combat effort"
         
         if hasattr(action_result, 'trophy_collected') and action_result.trophy_collected:
             trophy = action_result.trophy_collected
-            if trophy.get_honour_value() >= 5:
+            trophy_value = trophy.get_honour_value()
+            if trophy_value >= 10:
+                opinion_change += 10
+                message = f"{self.name} is greatly honoured by Dek's trophy: {trophy.name}"
+            elif trophy_value >= 5:
                 opinion_change += 5
                 message = f"{self.name} is impressed by Dek's trophy: {trophy.name}"
+            else:
+                opinion_change += 2
+                message = f"{self.name} notes Dek's trophy collection"
         
         violations = YautjaClanCode.evaluate_action(dek, action_result)
         if violations:
-            opinion_change -= len(violations) * 3
-            message = f"{self.name} disapproves: clan code violations detected"
+            severity_penalty = len(violations) * 5
+            opinion_change -= severity_penalty
+            message = f"{self.name} is angered by clan code violations: {len(violations)} infractions"
+            if self.opinion_of_dek + opinion_change < self.rejection_threshold:
+                action_required = "exile_warning"
+        
+        if hasattr(dek, 'carrying_thia') and dek.carrying_thia:
+            if hasattr(action_result, 'action_type'):
+                action_name = action_result.action_type.value if hasattr(action_result.action_type, 'value') else str(action_result.action_type)
+                if action_name in ['carry', 'protect']:
+                    opinion_change += 3
+                    message = f"{self.name} respects Dek's protection of his ally"
         
         self.opinion_of_dek += opinion_change
         self.disappointed_in_dek = self.opinion_of_dek < 0
         
-        return ClanReaction(ClanRelationship.FATHER, opinion_change, message)
+        self.witnessed_actions.append({
+            'action': action_result,
+            'opinion_change': opinion_change,
+            'message': message
+        })
+        
+        if self.opinion_of_dek >= self.approval_threshold and not self.disappointed_in_dek:
+            action_required = "approval_ceremony"
+        
+        return ClanReaction(ClanRelationship.FATHER, opinion_change, message, action_required)
+    
+    def issue_trial_to_dek(self, dek, trial_type="combat"):
+        if not self.trial_manager:
+            return None
+        
+        if trial_type == "combat":
+            trial = self.trial_manager.create_combat_trial(self, dek, kill_count=2, time_limit=40)
+        elif trial_type == "hunt":
+            trial = self.trial_manager.create_hunt_trial(self, dek, trophy_value=8, time_limit=50)
+        elif trial_type == "endurance":
+            trial = self.trial_manager.create_endurance_trial(self, dek, survival_turns=25)
+        elif trial_type == "honour":
+            trial = self.trial_manager.create_honour_trial(self, dek, honour_gain=12, time_limit=35)
+        else:
+            return None
+        
+        return f"{self.name} issues {trial_type} trial to Dek: {trial.requirements.get('description', 'Complete the trial')}"
+    
+    def approve_dek(self, dek):
+        from clan_code import YautjaClanCode, HonourableAction
+        
+        if self.opinion_of_dek < self.approval_threshold:
+            return None
+        
+        reward = YautjaClanCode.REWARDS[HonourableAction.CLAN_SERVICE]
+        reward.apply_reward(dek)
+        
+        self.disappointed_in_dek = False
+        dek.is_exiled = False
+        
+        return f"{self.name} officially approves Dek's return to the clan with honour"
+    
+    def reject_dek(self, dek):
+        from clan_code import YautjaClanCode, ClanCodeViolation
+        
+        if self.opinion_of_dek > self.rejection_threshold:
+            return None
+        
+        violation = YautjaClanCode.RULES[ClanCodeViolation.DISHONOUR_CLAN]
+        violation.apply_penalty(dek)
+        
+        dek.is_exiled = True
+        
+        return f"{self.name} formally rejects Dek - he remains in exile"
     
     def get_relationship_status(self):
         if self.opinion_of_dek >= 50:
             return "Proud father - Dek has proven worthy"
+        elif self.opinion_of_dek >= 30:
+            return "Approving - considers welcoming Dek back"
         elif self.opinion_of_dek >= 20:
             return "Cautiously optimistic about Dek"
         elif self.opinion_of_dek >= 0:
             return "Neutral - watching Dek's progress"
         elif self.opinion_of_dek >= -20:
             return "Disappointed but still hopeful"
-        else:
+        elif self.opinion_of_dek >= -30:
             return "Deeply ashamed of Dek's failures"
+        else:
+            return "Considering permanent exile for Dek"
     
     def challenge_dek(self, dek):
         if self.distance_to(dek) <= 2 and self.opinion_of_dek < -10:
             challenge_types = [
-                "Prove your worth in single combat",
-                "Bring me the skull of a worthy adversary", 
-                "Show the clan you understand honour"
+                ("combat", "Prove your worth in single combat"),
+                ("hunt", "Bring me the skull of a worthy adversary"),
+                ("honour", "Show the clan you understand honour"),
+                ("endurance", "Survive the badlands without fleeing")
             ]
-            return f"{self.name} challenges Dek: {challenge_types[abs(self.opinion_of_dek) % 3]}"
+            challenge_index = abs(self.opinion_of_dek) % len(challenge_types)
+            trial_type, challenge_text = challenge_types[challenge_index]
+            
+            if self.trial_manager:
+                self.issue_trial_to_dek(dek, trial_type)
+            
+            return f"{self.name} challenges Dek: {challenge_text}"
         return None
+    
+    def observe_area(self):
+        if not self.grid or not self.dek_reference:
+            return None
+        
+        if self.distance_to(self.dek_reference) <= self.patrol_radius:
+            return self.dek_reference
+        return None
+    
+    def is_in_territory(self):
+        distance = self.distance_to_position(self.territory_center[0], self.territory_center[1])
+        return distance <= self.patrol_radius
+    
+    def return_to_territory(self):
+        tx, ty = self.territory_center
+        best_move = None
+        best_distance = float('inf')
+        
+        for x, y in self.get_valid_moves():
+            dist = self.grid.calculate_distance(x, y, tx, ty)
+            if dist < best_distance:
+                best_distance = dist
+                best_move = (x, y)
+        
+        if best_move:
+            self.move_to(best_move[0], best_move[1])
+    
+    def aggressive_patrol(self):
+        observed_dek = self.observe_area()
+        if observed_dek and self.opinion_of_dek < -15:
+            challenge = self.challenge_dek(observed_dek)
+            if challenge:
+                return
+        
+        self.patrol_movement()
+    
+    def dignified_patrol(self):
+        observed_dek = self.observe_area()
+        if observed_dek and self.opinion_of_dek >= self.approval_threshold:
+            approval = self.approve_dek(observed_dek)
+            if approval:
+                return
+        
+        self.patrol_movement()
+    
+    def pursue_dek(self):
+        if not self.dek_reference or not self.grid:
+            return
+        
+        best_move = None
+        best_distance = float('inf')
+        
+        for x, y in self.get_valid_moves():
+            dist = self.distance_to_position(x, y)
+            if dist < best_distance:
+                best_distance = dist
+                best_move = (x, y)
+        
+        if best_move:
+            self.move_to(best_move[0], best_move[1])
     
     def decide_action(self):
         if not self.can_act():
             return "rest"
+        
+        if self.stamina < 30:
+            return "rest"
+        
+        observed_dek = self.observe_area()
+        
+        if observed_dek:
+            if self.opinion_of_dek < self.rejection_threshold:
+                return "confront_dek"
+            elif self.opinion_of_dek >= self.approval_threshold:
+                return "approve_dek"
         
         if not self.is_in_territory():
             return "return_territory"
@@ -533,12 +713,19 @@ class PredatorFather(PredatorAgent):
     def update(self):
         action = self.decide_action()
         
-        if action == "return_territory":
+        if action == "rest":
+            self.restore_stamina(15)
+        elif action == "return_territory":
             self.return_to_territory()
         elif action == "patrol_disapproving":
             self.aggressive_patrol()
         elif action == "patrol_elder":
             self.dignified_patrol()
+        elif action == "confront_dek":
+            self.pursue_dek()
+        elif action == "approve_dek":
+            if self.dek_reference:
+                self.approve_dek(self.dek_reference)
         else:
             super().update()
 
@@ -553,42 +740,92 @@ class PredatorBrother(PredatorAgent):
         self.protective_of_dek = True
         self.honour = 75
         self.clan_rank = "Blooded"
+        self.dek_reference = None
+        self.recent_dek_kills = 0
+        self.own_kills = 0
+        self.duel_cooldown = 0
+        self.protection_range = 5
+        self.last_protection_turn = 0
         
     @property
     def symbol(self):
-        return 'B'
+        return 'R'
+    
+    def set_dek_reference(self, dek):
+        self.dek_reference = dek
     
     def react_to_dek_success(self, dek, action_result):
-        from clan_code import ClanReaction, ClanRelationship
+        from clan_code import ClanReaction, ClanRelationship, YautjaClanCode
         
         opinion_change = 0
         message = ""
+        action_required = None
         
         if hasattr(action_result, 'trophy_collected') and action_result.trophy_collected:
             trophy = action_result.trophy_collected
-            if trophy.get_honour_value() > 5:
+            trophy_value = trophy.get_honour_value()
+            
+            if trophy_value > 8:
                 self.jealous_of_dek = True
+                self.rivalry_with_dek += 5
+                self.protective_of_dek = False
+                opinion_change = -3
+                message = f"{self.name} grows intensely jealous of Dek's {trophy.name}"
+            elif trophy_value > 5:
                 self.rivalry_with_dek += 2
-                opinion_change = -2
-                message = f"{self.name} grows jealous of Dek's {trophy.name}"
+                opinion_change = -1
+                message = f"{self.name} is envious of Dek's {trophy.name}"
             else:
                 opinion_change = 1
                 message = f"{self.name} acknowledges Dek's small victory"
         
         if hasattr(action_result, 'combat_result') and action_result.combat_result:
-            if action_result.combat_result.kill:
-                if self.protective_of_dek:
-                    opinion_change = 2
-                    message = f"{self.name} is proud of brother's kill"
-                else:
-                    self.rivalry_with_dek += 1
-                    message = f"{self.name} competes with Dek's success"
+            combat = action_result.combat_result
+            if combat.kill:
+                self.recent_dek_kills += 1
+                target_strength = YautjaClanCode.assess_target_strength(combat.defender)
+                
+                if target_strength >= 4:
+                    self.rivalry_with_dek += 3
+                    if self.protective_of_dek:
+                        opinion_change = 3
+                        message = f"{self.name} is proud but competitive after Dek's impressive kill"
+                    else:
+                        opinion_change = -2
+                        self.jealous_of_dek = True
+                        message = f"{self.name} burns with rivalry after Dek's kill"
+                elif target_strength >= 2:
+                    if self.protective_of_dek:
+                        opinion_change = 2
+                        message = f"{self.name} is proud of brother's kill"
+                    else:
+                        self.rivalry_with_dek += 1
+                        message = f"{self.name} notes Dek's progress with mixed feelings"
         
-        return ClanReaction(ClanRelationship.BROTHER, opinion_change, message)
+        if self.recent_dek_kills > self.own_kills + 2:
+            self.jealous_of_dek = True
+            self.protective_of_dek = False
+            action_required = "challenge_imminent"
+        
+        if self.rivalry_with_dek >= 30:
+            action_required = "duel_challenge"
+        
+        return ClanReaction(ClanRelationship.BROTHER, opinion_change, message, action_required)
+    
+    def record_own_kill(self):
+        self.own_kills += 1
+        if self.own_kills > self.recent_dek_kills:
+            self.jealous_of_dek = False
+            if self.rivalry_with_dek > 10:
+                self.rivalry_with_dek -= 2
     
     def get_relationship_status(self):
-        if self.rivalry_with_dek >= 30:
+        if self.rivalry_with_dek >= 35:
+            return "Bitter enemies - will attack on sight"
+        elif self.rivalry_with_dek >= 30:
             return "Intense rivalry - sees Dek as threat"
+        elif self.rivalry_with_dek >= 20:
+            return "Strong competitive rivalry"
         elif self.rivalry_with_dek >= 15:
             return "Competitive sibling rivalry"
         elif self.rivalry_with_dek >= 5:
@@ -597,49 +834,173 @@ class PredatorBrother(PredatorAgent):
             return "Protective older brother"
     
     def challenge_dek_to_duel(self, dek):
+        if self.duel_cooldown > 0:
+            return None
+        
         if self.rivalry_with_dek >= 25 and self.distance_to(dek) <= 3:
-            return f"{self.name} challenges Dek to prove who is the better hunter"
+            self.duel_cooldown = 20
+            
+            duel_types = [
+                "a hunt competition - first to claim a worthy trophy wins",
+                "single combat - prove who is the superior warrior",
+                "an endurance trial - last one standing in the badlands"
+            ]
+            duel_index = self.rivalry_with_dek % len(duel_types)
+            
+            return f"{self.name} challenges Dek to {duel_types[duel_index]}"
         return None
     
     def protect_dek(self, dek, threat):
-        if self.protective_of_dek and self.distance_to(dek) <= 5:
+        if not self.protective_of_dek:
+            return None
+        
+        if self.distance_to(dek) <= self.protection_range:
             if hasattr(threat, 'is_alive') and threat.is_alive:
-                return f"{self.name} moves to defend Dek from {threat.name}"
+                threat_distance = self.distance_to(threat)
+                dek_threat_distance = dek.distance_to(threat)
+                
+                if dek_threat_distance <= 2:
+                    return f"{self.name} moves to intercept {threat.name} threatening Dek"
         return None
+    
+    def intercept_threat(self, threat):
+        if not self.grid:
+            return False
+        
+        best_move = None
+        best_distance = float('inf')
+        
+        for x, y in self.get_valid_moves():
+            dist = self.grid.calculate_distance(x, y, threat.x, threat.y)
+            if dist < best_distance:
+                best_distance = dist
+                best_move = (x, y)
+        
+        if best_move:
+            self.move_to(best_move[0], best_move[1])
+            return True
+        return False
+    
+    def attack_threat(self, threat):
+        if self.distance_to(threat) == 1:
+            damage = random.randint(20, 35)
+            threat.take_damage(damage)
+            
+            if not threat.is_alive:
+                self.record_own_kill()
+                self.gain_honour(5)
+            return True
+        return False
+    
+    def find_nearby_threats(self):
+        if not self.grid or not self.dek_reference:
+            return []
+        
+        threats = []
+        nearby_cells = self.grid.get_cells_in_radius(self.dek_reference.x, self.dek_reference.y, self.protection_range)
+        
+        for cell in nearby_cells:
+            if cell.occupant and cell.occupant != self and cell.occupant != self.dek_reference:
+                agent = cell.occupant
+                if hasattr(agent, 'hostile') and agent.hostile:
+                    threats.append(agent)
+                elif 'Boss' in agent.__class__.__name__:
+                    threats.append(agent)
+                elif 'Wildlife' in agent.__class__.__name__ and hasattr(agent, 'aggression_level'):
+                    if agent.aggression_level > 0.5:
+                        threats.append(agent)
+        
+        return threats
+    
+    def competitive_hunting(self):
+        prey = self.hunt_nearby_prey()
+        if prey:
+            target = min(prey, key=lambda p: self.distance_to(p))
+            if self.distance_to(target) == 1:
+                self.attack_target(target)
+                if not target.is_alive:
+                    self.record_own_kill()
+            else:
+                self.move_towards(target)
+        else:
+            self.patrol_movement()
+    
+    def protective_patrol(self):
+        if not self.dek_reference:
+            self.patrol_movement()
+            return
+        
+        threats = self.find_nearby_threats()
+        
+        if threats:
+            nearest_threat = min(threats, key=lambda t: self.dek_reference.distance_to(t))
+            
+            if self.distance_to(nearest_threat) == 1:
+                self.attack_threat(nearest_threat)
+            else:
+                self.intercept_threat(nearest_threat)
+            return
+        
+        if self.distance_to(self.dek_reference) > self.protection_range:
+            self.move_towards(self.dek_reference)
+        else:
+            self.patrol_movement()
+    
+    def pursue_dek_aggressively(self):
+        if not self.dek_reference:
+            return
+        
+        if self.distance_to(self.dek_reference) == 1:
+            damage = random.randint(15, 25)
+            self.dek_reference.take_damage(damage)
+            self.rivalry_with_dek -= 5
+        else:
+            self.move_towards(self.dek_reference)
     
     def decide_action(self):
         if not self.can_act():
             return "rest"
         
+        if self.stamina < 25:
+            return "rest"
+        
+        if self.duel_cooldown > 0:
+            self.duel_cooldown -= 1
+        
+        if self.dek_reference and self.rivalry_with_dek >= 35:
+            if self.distance_to(self.dek_reference) <= 5:
+                return "attack_dek"
+        
+        if self.dek_reference and self.rivalry_with_dek >= 25:
+            if self.distance_to(self.dek_reference) <= 3:
+                challenge = self.challenge_dek_to_duel(self.dek_reference)
+                if challenge:
+                    return "challenge_dek"
+        
         if self.jealous_of_dek:
             return "compete_with_dek"
         elif self.protective_of_dek:
-            return "guard_territory"
+            return "guard_dek"
         
         return "hunt_prey"
     
     def update(self):
         action = self.decide_action()
         
-        if action == "compete_with_dek":
+        if action == "rest":
+            self.restore_stamina(12)
+        elif action == "compete_with_dek":
             self.competitive_hunting()
-        elif action == "guard_territory":
+        elif action == "guard_dek":
             self.protective_patrol()
         elif action == "hunt_prey":
             self.hunt_behavior()
+        elif action == "attack_dek":
+            self.pursue_dek_aggressively()
+        elif action == "challenge_dek":
+            pass
         else:
             super().update()
-    
-    def competitive_hunting(self):
-        prey = self.hunt_nearby_prey()
-        if prey:
-            target = min(prey, key=lambda p: self.distance_to(p))
-            self.move_towards(target)
-        else:
-            self.patrol_movement()
-    
-    def protective_patrol(self):
-        self.patrol_movement()
 
 
 class PredatorClan(PredatorAgent):
@@ -649,57 +1010,58 @@ class PredatorClan(PredatorAgent):
         self.clan_role = clan_role
         self.territory_center = (x, y)
         self.patrol_radius = 5
+        self.loyalty_to_elder = 80
+        self.opinion_of_dek = 0
+        self.follows_father_judgment = True
         
     @property
     def symbol(self):
         return 'C'
     
+    def follow_elder_judgment(self, father):
+        if self.follows_father_judgment and hasattr(father, 'opinion_of_dek'):
+            opinion_shift = (father.opinion_of_dek - self.opinion_of_dek) * 0.3
+            self.opinion_of_dek += int(opinion_shift)
+    
+    def react_to_dek(self, dek):
+        from clan_code import ClanReaction, ClanRelationship
+        
+        if self.opinion_of_dek >= 20:
+            return ClanReaction(
+                ClanRelationship.ELDER,
+                1,
+                f"{self.name} nods respectfully at Dek"
+            )
+        elif self.opinion_of_dek <= -20:
+            return ClanReaction(
+                ClanRelationship.RIVAL,
+                -1,
+                f"{self.name} turns away from the dishonoured Dek"
+            )
+        else:
+            return ClanReaction(
+                ClanRelationship.ELDER,
+                0,
+                f"{self.name} watches Dek silently"
+            )
+    
     def is_in_territory(self):
         distance = self.distance_to_position(self.territory_center[0], self.territory_center[1])
         return distance <= self.patrol_radius
     
-    def decide_action(self):
-        if not self.can_act():
-            return "rest"
-        
-        if not self.is_in_territory():
-            return "return_territory"
-        
-        return super().decide_action()
-    
     def return_to_territory(self):
         tx, ty = self.territory_center
-        if self.distance_to_position(tx, ty) > 1:
-            best_move = None
-            best_distance = float('inf')
-            
-            for x, y in self.get_valid_moves():
-                distance = self.distance_to_position(x, y)
-                if distance < best_distance:
-                    best_distance = distance
-                    best_move = (x, y)
-            
-            if best_move:
-                self.move_to(best_move[0], best_move[1])
-    
-    def is_in_territory(self):
-        distance = self.distance_to_position(self.territory_center[0], self.territory_center[1])
-        return distance <= self.patrol_radius
-    
-    def return_to_territory(self):
-        tx, ty = self.territory_center
-        if self.distance_to_position(tx, ty) > 1:
-            best_move = None
-            best_distance = float('inf')
-            
-            for x, y in self.get_valid_moves():
-                distance = self.distance_to_position(x, y)
-                if distance < best_distance:
-                    best_distance = distance
-                    best_move = (x, y)
-            
-            if best_move:
-                self.move_to(best_move[0], best_move[1])
+        best_move = None
+        best_distance = float('inf')
+        
+        for x, y in self.get_valid_moves():
+            dist = self.grid.calculate_distance(x, y, tx, ty) if self.grid else float('inf')
+            if dist < best_distance:
+                best_distance = dist
+                best_move = (x, y)
+        
+        if best_move:
+            self.move_to(best_move[0], best_move[1])
     
     def aggressive_patrol(self):
         self.patrol_movement()
@@ -709,10 +1071,24 @@ class PredatorClan(PredatorAgent):
     def dignified_patrol(self):
         self.patrol_movement()
     
+    def decide_action(self):
+        if not self.can_act():
+            return "rest"
+        
+        if self.stamina < 20:
+            return "rest"
+        
+        if not self.is_in_territory():
+            return "return_territory"
+        
+        return super().decide_action()
+    
     def update(self):
         action = self.decide_action()
         
-        if action == "return_territory":
+        if action == "rest":
+            self.restore_stamina(10)
+        elif action == "return_territory":
             self.return_to_territory()
         else:
             super().update()
