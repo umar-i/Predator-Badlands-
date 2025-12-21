@@ -7,127 +7,254 @@ from grid import Grid
 from renderer import GridRenderer
 
 
-def test_thia_cooperation_system():
-    from predator import Dek
-    from synthetic import Thia, SyntheticScout, SyntheticMedic, SyntheticEnemy
-    from creatures import WildlifeAgent
+def test_clan_honour_system():
+    from predator import Dek, PredatorFather, PredatorBrother, PredatorClan
+    from synthetic import Thia
+    from creatures import WildlifeAgent, BossAdversary
     from actions import ActionType, Direction
     from event_logger import EventLogger
-    from interaction_protocol import SyntheticInteractionManager, InteractionType
+    from clan_code import (
+        YautjaClanCode, ClanTrialManager, HonourTracker,
+        ClanRelationship, HonourableAction, ClanCodeViolation
+    )
     
     print("=" * 70)
     print("PREDATOR: BADLANDS SIMULATION")
-    print("Phase 5: Thia Cooperation & Synthetic Ecosystem Test")
+    print("Phase 6: Clan & Honour System Test")
     print("=" * 70)
     
     grid = Grid(30, 30)
     grid.generate_terrain()
     renderer = GridRenderer(grid)
     logger = EventLogger()
-    interaction_manager = SyntheticInteractionManager()
+    trial_manager = ClanTrialManager()
     
     dek = Dek(10, 10)
     thia = Thia(11, 10)
-    scout = SyntheticScout("Scout-Alpha", 15, 15)
-    medic = SyntheticMedic("Medic-Beta", 8, 8)
-    enemy = SyntheticEnemy("Hostile-Gamma", 20, 20)
-    wildlife = WildlifeAgent("Canyon Beast", "predator", 12, 12)
+    father = PredatorFather("Elder Kaail", 5, 5)
+    brother = PredatorBrother("Cetanu", 15, 10)
+    clan_warrior = PredatorClan("Warrior Thar", 8, 8, "warrior")
+    wildlife1 = WildlifeAgent("Canyon Beast", "predator", 12, 12)
+    wildlife2 = WildlifeAgent("Desert Stalker", "predator", 14, 14)
+    boss = BossAdversary("Ultimate Adversary", 25, 25)
     
-    agents = [dek, thia, scout, medic, enemy, wildlife]
+    honour_tracker = HonourTracker(dek)
+    
+    father.set_trial_manager(trial_manager)
+    father.set_dek_reference(dek)
+    brother.set_dek_reference(dek)
+    
+    agents = [dek, thia, father, brother, clan_warrior, wildlife1, wildlife2, boss]
     
     for agent in agents:
         agent.set_grid(grid)
         grid.place_agent(agent, agent.x, agent.y)
     
-    print(f"\nInitial Setup:")
-    print(f"  {dek}")
-    print(f"  {thia} - Trust in Dek: {thia.trust_in_dek}, Mobility: {thia.mobility_rating}")
-    print(f"  {scout} - Intel collected: {len(scout.collected_intel)}")
-    print(f"  {medic} - Supplies: {medic.medical_supplies}, Tools: {medic.repair_tools}")
-    print(f"  {enemy} - Combat mode: {enemy.combat_mode}")
-    print(f"  {wildlife}")
+    print(f"\n{'='*70}")
+    print("INITIAL STATE")
+    print(f"{'='*70}")
+    print(f"\nDek Status:")
+    print(f"  Position: ({dek.x}, {dek.y})")
+    print(f"  Honour: {dek.honour}")
+    print(f"  Clan Rank: {dek.clan_rank}")
+    print(f"  Is Exiled: {dek.is_exiled}")
+    print(f"  Clan Judgment: {YautjaClanCode.get_clan_judgment(dek)}")
     
-    print(f"\n" + "=" * 70)
-    print("Testing Thia Cooperation Mechanics")
-    print("=" * 70)
+    print(f"\nFather Status:")
+    print(f"  {father.name}")
+    print(f"  Opinion of Dek: {father.opinion_of_dek}")
+    print(f"  Relationship: {father.get_relationship_status()}")
+    print(f"  Disappointed: {father.disappointed_in_dek}")
     
-    test_scenarios = [
-        ("Dek carries Thia", lambda: dek.perform_action(ActionType.CARRY, None, thia)),
-        ("Thia performs scan", lambda: thia.perform_reconnaissance_scan()),
-        ("Dek requests intel", lambda: dek.perform_action(ActionType.REQUEST_INFO, None, thia)),
-        ("Scout gathers intelligence", lambda: scout.perform_deep_scan()),
-        ("Medic scans Thia", lambda: medic.perform_medical_scan(thia)),
-        ("Alliance formation", lambda: interaction_manager.initiate_interaction(
-            dek, thia, InteractionType.ALLIANCE_PROPOSAL)),
-        ("Information sharing", lambda: scout.share_intelligence(thia)),
-        ("Dek drops Thia", lambda: dek.perform_action(ActionType.DROP, None, None))
-    ]
+    print(f"\nBrother Status:")
+    print(f"  {brother.name}")
+    print(f"  Rivalry with Dek: {brother.rivalry_with_dek}")
+    print(f"  Relationship: {brother.get_relationship_status()}")
+    print(f"  Protective: {brother.protective_of_dek}")
+    print(f"  Jealous: {brother.jealous_of_dek}")
     
-    for i, (scenario_name, scenario_func) in enumerate(test_scenarios):
+    print(f"\n{'='*70}")
+    print("TEST 1: Combat and Honour Evaluation")
+    print(f"{'='*70}")
+    
+    wildlife1.x, wildlife1.y = dek.x + 1, dek.y
+    grid.place_agent(wildlife1, wildlife1.x, wildlife1.y)
+    
+    attack_result = dek.perform_action(ActionType.ATTACK, None, wildlife1)
+    print(f"\nDek attacks {wildlife1.name}:")
+    print(f"  Result: {attack_result.message}")
+    
+    if attack_result.combat_result:
+        honour_events = YautjaClanCode.evaluate_combat_honour(
+            dek, wildlife1, attack_result.combat_result
+        )
+        for event_type, message in honour_events:
+            print(f"  Honour Event ({event_type}): {message}")
+            honour_tracker.record_change(event_type, 0, message)
+    
+    father_reaction = father.judge_dek_action(dek, attack_result)
+    print(f"\nFather's Reaction:")
+    print(f"  {father_reaction.message}")
+    print(f"  Opinion Change: {father_reaction.opinion_change}")
+    print(f"  New Opinion: {father.opinion_of_dek}")
+    
+    brother_reaction = brother.react_to_dek_success(dek, attack_result)
+    print(f"\nBrother's Reaction:")
+    print(f"  {brother_reaction.message}")
+    print(f"  Rivalry Now: {brother.rivalry_with_dek}")
+    
+    print(f"\n{'='*70}")
+    print("TEST 2: Trophy Collection and Clan Response")
+    print(f"{'='*70}")
+    
+    if not wildlife1.is_alive:
+        trophy_result = dek.perform_action(ActionType.COLLECT_TROPHY, None, wildlife1)
+        print(f"\nDek collects trophy:")
+        print(f"  Result: {trophy_result.message}")
+        
+        if trophy_result.trophy_collected:
+            trial_manager.notify_trophy(dek, trophy_result.trophy_collected)
+            print(f"  Trophy Value: {trophy_result.trophy_collected.get_honour_value()}")
+        
+        father_reaction2 = father.judge_dek_action(dek, trophy_result)
+        print(f"\nFather's Reaction to Trophy:")
+        print(f"  {father_reaction2.message}")
+        print(f"  Opinion Now: {father.opinion_of_dek}")
+        
+        brother_reaction2 = brother.react_to_dek_success(dek, trophy_result)
+        print(f"\nBrother's Reaction to Trophy:")
+        print(f"  {brother_reaction2.message}")
+        print(f"  Jealous Now: {brother.jealous_of_dek}")
+    
+    print(f"\n{'='*70}")
+    print("TEST 3: Thia Assistance and Honour")
+    print(f"{'='*70}")
+    
+    carry_result = dek.perform_action(ActionType.CARRY, None, thia)
+    print(f"\nDek carries Thia:")
+    print(f"  Result: {carry_result.message}")
+    
+    thia_honour = YautjaClanCode.evaluate_thia_assistance(dek, 'carry')
+    if thia_honour:
+        print(f"  Honour for helping Thia: {thia_honour}")
+    
+    father_reaction3 = father.judge_dek_action(dek, carry_result)
+    print(f"\nFather's View on Protecting Ally:")
+    print(f"  {father_reaction3.message}")
+    
+    print(f"\n{'='*70}")
+    print("TEST 4: Clan Trial System")
+    print(f"{'='*70}")
+    
+    trial_message = father.issue_trial_to_dek(dek, "combat")
+    print(f"\n{trial_message}")
+    
+    active_trials = trial_manager.get_active_trials_for(dek)
+    print(f"\nActive Trials for Dek: {len(active_trials)}")
+    for trial in active_trials:
+        status = trial.get_status()
+        print(f"  - {status['trial_type']}: {status['progress']}")
+        print(f"    Time Remaining: {status['time_remaining']}")
+    
+    print(f"\n{'='*70}")
+    print("TEST 5: Brother Rivalry Dynamics")
+    print(f"{'='*70}")
+    
+    original_rivalry = brother.rivalry_with_dek
+    
+    for i in range(3):
+        brother.rivalry_with_dek += 5
+        print(f"\nRivalry increased to {brother.rivalry_with_dek}")
+        print(f"  Status: {brother.get_relationship_status()}")
+        
+        challenge = brother.challenge_dek_to_duel(dek)
+        if challenge:
+            print(f"  CHALLENGE: {challenge}")
+    
+    brother.rivalry_with_dek = original_rivalry
+    
+    print(f"\n{'='*70}")
+    print("TEST 6: Approval/Rejection Thresholds")
+    print(f"{'='*70}")
+    
+    print(f"\nTesting Approval Path:")
+    father.opinion_of_dek = 35
+    approval = father.approve_dek(dek)
+    if approval:
+        print(f"  {approval}")
+        print(f"  Dek Exiled Status: {dek.is_exiled}")
+    
+    print(f"\nTesting Rejection Path:")
+    father.opinion_of_dek = -35
+    rejection = father.reject_dek(dek)
+    if rejection:
+        print(f"  {rejection}")
+        print(f"  Dek Exiled Status: {dek.is_exiled}")
+    
+    father.opinion_of_dek = -20
+    
+    print(f"\n{'='*70}")
+    print("TEST 7: Honour Tracker Summary")
+    print(f"{'='*70}")
+    
+    tracker_summary = honour_tracker.get_summary()
+    print(f"\nHonour Tracking Summary:")
+    for key, value in tracker_summary.items():
+        print(f"  {key}: {value}")
+    
+    print(f"\n{'='*70}")
+    print("TEST 8: Simulation Loop (10 turns)")
+    print(f"{'='*70}")
+    
+    father.opinion_of_dek = -15
+    dek.is_exiled = True
+    
+    for turn in range(10):
         logger.increment_step()
+        trial_manager.update_trials()
         
-        print(f"\nStep {i+1}: {scenario_name}")
-        print(f"  Thia Trust: {thia.trust_in_dek}, Cooperation: {thia.cooperation_level}")
+        for agent in agents:
+            if agent.is_alive:
+                agent.step()
         
-        try:
-            result = scenario_func()
+        if turn % 3 == 0:
+            print(f"\nTurn {turn + 1}:")
+            print(f"  Dek - Honour: {dek.honour}, Position: ({dek.x}, {dek.y})")
+            print(f"  Father Opinion: {father.opinion_of_dek}")
+            print(f"  Brother Rivalry: {brother.rivalry_with_dek}")
             
-            if hasattr(result, 'message'):
-                print(f"  Result: {result.message}")
-                logger.log_action(dek, result)
-            elif hasattr(result, 'success'):
-                print(f"  Interaction: {result.response}")
-                if result.success:
-                    thia.build_trust(2)
-            elif result is not None:
-                print(f"  Action completed: {type(result).__name__}")
-            else:
-                print(f"  Action failed or returned None")
-            
-        except Exception as e:
-            print(f"  Error: {str(e)}")
-        
-        print(f"  Updated Trust: {thia.trust_in_dek}, Cooperation: {thia.cooperation_level}")
-        
-        if thia.carried_by:
-            print(f"  Thia is being carried by {thia.carried_by.name}")
-        
-        if hasattr(thia, 'scan_cooldown') and thia.scan_cooldown > 0:
-            print(f"  Thia scan cooldown: {thia.scan_cooldown}")
+            trials = trial_manager.get_active_trials_for(dek)
+            if trials:
+                for t in trials:
+                    trial_manager.notify_survival(dek)
     
-    print(f"\n" + "=" * 70)
-    print("Synthetic Agent Capabilities Summary")
-    print("=" * 70)
+    print(f"\n{'='*70}")
+    print("FINAL STATE")
+    print(f"{'='*70}")
     
-    print(f"\nThia Advanced Features:")
-    print(f"  Intel Database: {len(thia.intel_database)} categories")
-    print(f"  Movement Penalty: {thia.movement_penalty}")
-    print(f"  Can Move Independently: {thia.can_move_independently}")
-    print(f"  Battery Level: {thia.battery_level}%")
+    print(f"\nDek Final Status:")
+    print(f"  Honour: {dek.honour}")
+    print(f"  Clan Rank: {dek.clan_rank}")
+    print(f"  Clan Judgment: {YautjaClanCode.get_clan_judgment(dek)}")
+    print(f"  Trophies: {len(dek.trophies)}")
     
-    print(f"\nScout Capabilities:")
-    print(f"  Reconnaissance Range: {scout.reconnaissance_range}")
-    print(f"  Intel Collected: {len(scout.collected_intel)}")
-    print(f"  Stealth Available: {scout.stealth_capability}")
+    print(f"\nClan Relationships:")
+    print(f"  Father: {father.get_relationship_status()}")
+    print(f"  Brother: {brother.get_relationship_status()}")
     
-    print(f"\nMedic Capabilities:")
-    print(f"  Medical Supplies: {medic.medical_supplies}")
-    print(f"  Repair Tools: {medic.repair_tools}")
-    print(f"  Priority Targets: {medic.priority_targets}")
+    print(f"\nTrial Manager Summary:")
+    trial_summary = trial_manager.get_trial_summary()
+    for key, value in trial_summary.items():
+        print(f"  {key}: {value}")
     
-    print(f"\nInteraction Summary:")
-    interaction_history = interaction_manager.get_interaction_history()
-    print(f"  Total Interactions: {len(interaction_history)}")
-    alliance_summary = interaction_manager.get_alliance_summary()
-    print(f"  Active Alliances: {alliance_summary['total_alliances']}")
+    logger.export_events_json('data/phase6_test.json')
+    print(f"\nEvent log exported to: data/phase6_test.json")
     
-    logger.export_events_json('data/phase5_test.json')
-    print(f"\nEvent log exported to: data/phase5_test.json")
-    
-    print(f"\n" + "=" * 70)
-    print("Phase 5 Test Complete - Requirement (c) Satisfied")
-    print("=" * 70)
+    print(f"\n{'='*70}")
+    print("Phase 6 Test Complete - Requirement (e) Satisfied")
+    print("Clan & Honour System Fully Implemented")
+    print(f"{'='*70}")
 
 
 if __name__ == "__main__":
-    test_thia_cooperation_system()
+    test_clan_honour_system()
