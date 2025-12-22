@@ -360,5 +360,246 @@ def run_phase7_simulation():
     print(f"Outcome: {outcome} ({reason}) -> data/phase7_run.json")
 
 
+class SimulationEngine:
+    
+    def __init__(self, config):
+        from predator import Dek, PredatorFather, PredatorBrother
+        from synthetic import Thia
+        from creatures import WildlifeAgent, BossAdversary
+        from items import random_item
+        from weather import WeatherSystem
+        from event_logger import EventLogger
+        import random
+        
+        self.config = config
+        self.random = random
+        self.random_item = random_item
+        
+        self.grid = None
+        self.logger = None
+        self.weather = None
+        self.agents = []
+        self.dek = None
+        self.thia = None
+        self.boss = None
+        self.turn = 0
+        self.outcome = None
+        self.reason = ""
+        self.max_turns = config.max_turns
+        
+        self.Dek = Dek
+        self.Thia = Thia
+        self.PredatorFather = PredatorFather
+        self.PredatorBrother = PredatorBrother
+        self.WildlifeAgent = WildlifeAgent
+        self.BossAdversary = BossAdversary
+        self.WeatherSystem = WeatherSystem
+        self.EventLogger = EventLogger
+        
+        self.visualizer = None
+        self.initialize()
+    
+    def initialize(self):
+        self.grid = Grid(self.config.grid_width, self.config.grid_height)
+        self.grid.generate_terrain()
+        self.logger = self.EventLogger()
+        self.weather = self.WeatherSystem()
+        self.turn = 0
+        self.outcome = None
+        self.reason = ""
+        
+        self.dek = self.Dek(10, 10)
+        self.thia = self.Thia(11, 10)
+        father = self.PredatorFather("Elder Kaail", 5, 5)
+        brother = self.PredatorBrother("Cetanu", 15, 10)
+        
+        wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
+        wildlife = []
+        positions = [(12, 12), (18, 18), (22, 8), (8, 22), (20, 20)]
+        for i in range(min(wildlife_count, len(positions))):
+            px, py = positions[i]
+            w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
+            wildlife.append(w)
+        
+        boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
+        self.boss = self.BossAdversary("Ultimate Adversary", 25, 25)
+        self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
+        self.boss.health = self.boss.max_health
+        
+        self.agents = [self.dek, self.thia, father, brother, self.boss] + wildlife
+        
+        for a in self.agents:
+            a.set_grid(self.grid)
+            self.grid.place_agent(a, a.x, a.y)
+        
+        resource_count = self.config.get("difficulty", "resource_count", 15)
+        placed = 0
+        while placed < resource_count:
+            cell = self.grid.find_empty_cell()
+            if not cell:
+                break
+            item = self.random_item()
+            cell.add_item(item)
+            placed += 1
+    
+    def set_visualizer(self, visualizer):
+        self.visualizer = visualizer
+        visualizer.set_grid(self.grid)
+        visualizer.set_simulation(self.step)
+        visualizer.set_reset_callback(self.reset)
+    
+    def reset(self):
+        self.grid = Grid(self.config.grid_width, self.config.grid_height)
+        self.grid.generate_terrain()
+        self.logger = self.EventLogger()
+        self.weather = self.WeatherSystem()
+        self.turn = 0
+        self.outcome = None
+        self.reason = ""
+        
+        self.dek = self.Dek(10, 10)
+        self.thia = self.Thia(11, 10)
+        father = self.PredatorFather("Elder Kaail", 5, 5)
+        brother = self.PredatorBrother("Cetanu", 15, 10)
+        
+        wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
+        wildlife = []
+        positions = [(12, 12), (18, 18), (22, 8), (8, 22), (20, 20)]
+        for i in range(min(wildlife_count, len(positions))):
+            px, py = positions[i]
+            w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
+            wildlife.append(w)
+        
+        boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
+        self.boss = self.BossAdversary("Ultimate Adversary", 25, 25)
+        self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
+        self.boss.health = self.boss.max_health
+        
+        self.agents = [self.dek, self.thia, father, brother, self.boss] + wildlife
+        
+        for a in self.agents:
+            a.set_grid(self.grid)
+            self.grid.place_agent(a, a.x, a.y)
+        
+        resource_count = self.config.get("difficulty", "resource_count", 15)
+        placed = 0
+        while placed < resource_count:
+            cell = self.grid.find_empty_cell()
+            if not cell:
+                break
+            item = self.random_item()
+            cell.add_item(item)
+            placed += 1
+        
+        if self.visualizer:
+            self.visualizer.set_grid(self.grid)
+            self.visualizer.update_turn(0)
+            self.visualizer.update_weather("Calm")
+            self.visualizer.update_agent_health("dek", self.dek.health, self.dek.max_health)
+            self.visualizer.update_agent_health("thia", self.thia.health, self.thia.max_health)
+            self.visualizer.update_agent_health("boss", self.boss.health, self.boss.max_health)
+            self.visualizer.render_grid()
+    
+    def step(self):
+        if self.outcome:
+            return
+        
+        self.turn += 1
+        self.logger.increment_step()
+        
+        changed = self.weather.maybe_transition()
+        if changed:
+            self.logger.log_weather_change(self.weather.current)
+            if self.visualizer:
+                self.visualizer.update_weather(self.weather.current.name)
+                self.visualizer.log_event(f"Weather: {self.weather.current.name}", "weather")
+        
+        for agent in list(self.agents):
+            if not agent.is_alive:
+                continue
+            agent.step()
+            self._try_pickup(agent)
+        
+        wd = self.weather.damage_this_turn()
+        if wd > 0:
+            for agent in self.agents:
+                if agent.is_alive:
+                    before = agent.health
+                    agent.take_damage(wd)
+                    if agent.health < before:
+                        self.logger.log_hazard_effect(agent, wd, self.weather.current.name)
+                        if self.visualizer:
+                            name = getattr(agent, 'name', agent.__class__.__name__)
+                            self.visualizer.log_event(f"{name} takes {wd} weather damage", "combat")
+        
+        if self.visualizer:
+            self.visualizer.update_turn(self.turn)
+            self.visualizer.update_agent_health("dek", self.dek.health, self.dek.max_health)
+            self.visualizer.update_agent_health("thia", self.thia.health, self.thia.max_health)
+            self.visualizer.update_agent_health("boss", self.boss.health, self.boss.max_health)
+        
+        if not self.boss.is_alive and self.dek.is_alive:
+            self.outcome = "win"
+            self.reason = "boss_defeated"
+            self._finalize()
+        elif not self.dek.is_alive:
+            self.outcome = "lose"
+            self.reason = "dek_dead"
+            self._finalize()
+        elif self.turn >= self.max_turns:
+            self.outcome = "timeout"
+            self.reason = "turn_limit"
+            self._finalize()
+    
+    def _try_pickup(self, agent):
+        cell = self.grid.get_cell(agent.x, agent.y)
+        if not cell.items:
+            return
+        new_items = []
+        for it in cell.items:
+            if it.apply(agent):
+                self.logger.log_item_pickup(agent, it)
+                if self.visualizer:
+                    name = getattr(agent, 'name', agent.__class__.__name__)
+                    self.visualizer.log_event(f"{name} picked up {it.name}", "item")
+            else:
+                new_items.append(it)
+        cell.items = new_items
+    
+    def _finalize(self):
+        self.logger.log_outcome(self.outcome, self.turn, self.reason)
+        self.logger.export_events_json('data/visual_run.json')
+        
+        if self.visualizer:
+            self.visualizer.log_event(f"SIMULATION ENDED: {self.outcome.upper()}", "system")
+            self.visualizer.show_outcome(self.outcome, self.reason)
+
+
+def run_visual_simulation():
+    from config import GameConfig
+    from visualizer import PredatorVisualizer
+    
+    config = GameConfig()
+    engine = SimulationEngine(config)
+    visualizer = PredatorVisualizer(config)
+    engine.set_visualizer(visualizer)
+    
+    visualizer.update_turn(0)
+    visualizer.update_weather("Calm")
+    visualizer.update_agent_health("dek", engine.dek.health, engine.dek.max_health)
+    visualizer.update_agent_health("thia", engine.thia.health, engine.thia.max_health)
+    visualizer.update_agent_health("boss", engine.boss.health, engine.boss.max_health)
+    visualizer.render_grid()
+    
+    visualizer.log_event("PREDATOR: BADLANDS initialized", "system")
+    visualizer.log_event("Press START or SPACE to begin", "system")
+    
+    visualizer.run()
+
+
 if __name__ == "__main__":
-    run_phase7_simulation()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--visual":
+        run_visual_simulation()
+    else:
+        run_phase7_simulation()
