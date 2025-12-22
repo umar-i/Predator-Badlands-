@@ -81,6 +81,8 @@ class WildlifeAgent(Agent):
             if self.distance_to(target) == 1:
                 damage = random.randint(5, 15)
                 target.take_damage(damage)
+                if hasattr(target, 'consume_stamina') and random.random() < 0.4:
+                    target.consume_stamina(random.randint(5, 12))
             else:
                 self.move_towards(target)
     
@@ -134,6 +136,9 @@ class BossAdversary(Agent):
         self.rage_level = 0
         self.phase = 1
         self.last_attacker = None
+        self.territory_center = (x, y)
+        self.territory_radius = 7
+        self.focus_target = None
         
     @property
     def symbol(self):
@@ -177,7 +182,7 @@ class BossAdversary(Agent):
         if self.health < self.max_health * 0.3:
             return "regenerate"
         
-        if self.is_enraged and random.random() < 0.4:
+        if self.is_enraged and random.random() < 0.5:
             return "special_attack"
         
         return "attack"
@@ -196,18 +201,18 @@ class BossAdversary(Agent):
         if not self.grid:
             return
         
-        affected_cells = self.grid.get_cells_in_radius(self.x, self.y, 4)
+        affected_cells = self.grid.get_cells_in_radius(self.x, self.y, 4 if self.phase == 1 else 6)
         
         for cell in affected_cells:
             if cell.occupant and cell.occupant != self:
-                damage = random.randint(20, 35)
+                damage = random.randint(25, 40) if self.phase == 1 else random.randint(35, 55)
                 cell.occupant.take_damage(damage)
     
     def energy_blast_attack(self):
         enemies = self.detect_enemies()
         if enemies:
             target = random.choice(enemies)
-            damage = random.randint(30, 50)
+            damage = random.randint(35, 55) if self.phase == 1 else random.randint(45, 70)
             target.take_damage(damage)
     
     def regenerate_health(self):
@@ -224,7 +229,7 @@ class BossAdversary(Agent):
         
         if targets_in_range:
             target = random.choice(targets_in_range)
-            damage = random.randint(25, 40)
+            damage = random.randint(30, 45) if self.phase == 1 else random.randint(40, 60)
             if self.is_enraged:
                 damage = int(damage * 1.5)
             target.take_damage(damage)
@@ -248,7 +253,19 @@ class BossAdversary(Agent):
     
     def patrol_behavior(self):
         valid_moves = self.get_valid_moves()
-        if valid_moves:
+        if not valid_moves:
+            return
+        tx, ty = self.territory_center
+        best_move = None
+        best_distance = float('inf')
+        for x, y in valid_moves:
+            d = self.grid.calculate_distance(x, y, tx, ty) if self.grid else 0
+            if d <= self.territory_radius and d < best_distance:
+                best_distance = d
+                best_move = (x, y)
+        if best_move:
+            self.move_to(*best_move)
+        else:
             self.move_to(*random.choice(valid_moves))
     
     def update(self):
