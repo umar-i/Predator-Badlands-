@@ -256,5 +256,109 @@ def test_clan_honour_system():
     print(f"{'='*70}")
 
 
+def run_phase7_simulation():
+    import random
+    from predator import Dek, PredatorFather, PredatorBrother
+    from synthetic import Thia
+    from creatures import WildlifeAgent, BossAdversary
+    from items import random_item
+    from weather import WeatherSystem
+    from actions import ActionType
+    from event_logger import EventLogger
+    from clan_code import YautjaClanCode
+    
+    grid = Grid(30, 30)
+    grid.generate_terrain()
+    logger = EventLogger()
+    weather = WeatherSystem()
+    renderer = GridRenderer(grid)
+    
+    dek = Dek(10, 10)
+    thia = Thia(11, 10)
+    father = PredatorFather("Elder Kaail", 5, 5)
+    brother = PredatorBrother("Cetanu", 15, 10)
+    wildlife = [
+        WildlifeAgent("Canyon Beast", "predator", 12, 12),
+        WildlifeAgent("Sand Raptor", "predator", 18, 18)
+    ]
+    boss = BossAdversary("Ultimate Adversary", 25, 25)
+    agents = [dek, thia, father, brother, boss] + wildlife
+    
+    for a in agents:
+        a.set_grid(grid)
+        grid.place_agent(a, a.x, a.y)
+    
+    resource_spots = 18
+    placed = 0
+    rng = random.Random(42)
+    while placed < resource_spots:
+        cell = grid.find_empty_cell()
+        if not cell:
+            break
+        item = random_item()
+        cell.add_item(item)
+        placed += 1
+    
+    turns = 80
+    outcome = None
+    reason = ""
+    
+    def try_pickup(agent):
+        cell = grid.get_cell(agent.x, agent.y)
+        if not cell.items:
+            return
+        new_items = []
+        for it in cell.items:
+            if it.apply(agent):
+                logger.log_item_pickup(agent, it)
+            else:
+                new_items.append(it)
+        cell.items = new_items
+    
+    print("=" * 70)
+    print("Phase 7: Survival, Hazards, and Boss")
+    print("=" * 70)
+    
+    for t in range(1, turns + 1):
+        logger.increment_step()
+        changed = weather.maybe_transition()
+        if changed:
+            logger.log_weather_change(weather.current)
+        
+        for agent in list(agents):
+            if not agent.is_alive:
+                continue
+            agent.step()
+            try_pickup(agent)
+        
+        wd = weather.damage_this_turn()
+        if wd > 0:
+            for agent in agents:
+                if agent.is_alive:
+                    before = agent.health
+                    agent.take_damage(wd)
+                    if agent.health < before:
+                        logger.log_hazard_effect(agent, wd, weather.current.name)
+        
+        if not boss.is_alive and dek.is_alive:
+            outcome = "win"
+            reason = "boss_defeated"
+            break
+        if not dek.is_alive:
+            outcome = "lose"
+            reason = "dek_dead"
+            break
+        
+        if t % 10 == 0:
+            print(f"Turn {t} | Dek H:{dek.health} S:{dek.stamina} Honour:{dek.honour} | Boss H:{boss.health}")
+    
+    if not outcome:
+        outcome = "timeout"
+        reason = "turn_limit"
+    logger.log_outcome(outcome, logger.step_counter, reason)
+    logger.export_events_json('data/phase7_run.json')
+    print(f"Outcome: {outcome} ({reason}) -> data/phase7_run.json")
+
+
 if __name__ == "__main__":
-    test_clan_honour_system()
+    run_phase7_simulation()

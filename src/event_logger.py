@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from collections import defaultdict
 
@@ -231,6 +232,10 @@ class EventLogger:
             'agent_statistics': dict(self.agent_stats),
             'events': self.events
         }
+        
+        directory = os.path.dirname(filename)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
         
         with open(filename, 'w') as f:
             json.dump(export_data, f, indent=2)
