@@ -192,6 +192,34 @@ class EventLogger:
         
         return summary
     
+    def log_item_pickup(self, agent, item):
+        self.log_event('item_pickup', agent, {
+            'item': item.item_type if hasattr(item, 'item_type') else 'unknown',
+            'name': getattr(item, 'name', 'item'),
+            'value': getattr(item, 'value', 0)
+        })
+    
+    def log_weather_change(self, weather_state):
+        self.log_event('weather_change', None, {
+            'state': weather_state.name,
+            'move_multiplier': weather_state.move_multiplier,
+            'global_damage': weather_state.global_damage,
+            'visibility_penalty': weather_state.visibility_penalty
+        })
+    
+    def log_hazard_effect(self, agent, amount, cause):
+        self.log_event('hazard', agent, {
+            'damage': amount,
+            'cause': cause
+        })
+    
+    def log_outcome(self, result, turns, reason):
+        self.log_event('simulation_outcome', None, {
+            'result': result,
+            'turns': turns,
+            'reason': reason
+        })
+    
     def export_events_json(self, filename):
         export_data = {
             'metadata': {
