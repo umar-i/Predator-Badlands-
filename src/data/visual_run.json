@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "total_steps": 0,
+    "total_events": 1,
+    "export_time": "2025-12-23T00:14:30.456483"
+  },
+  "statistics": {
+    "simulation_outcome": 1
+  },
+  "agent_statistics": {},
+  "events": [
+    {
+      "timestamp": 0,
+      "type": "simulation_outcome",
+      "agent": "system",
+      "position": null,
+      "details": {
+        "result": null,
+        "turns": 0,
+        "reason": "turn_limit"
+      }
+    }
+  ]
+}

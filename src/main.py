@@ -493,11 +493,13 @@ class SimulationEngine:
         
         if self.visualizer:
             self.visualizer.set_grid(self.grid)
+            self.visualizer.set_agents(self.agents)
             self.visualizer.update_turn(0)
             self.visualizer.update_weather("Calm")
-            self.visualizer.update_agent_health("dek", self.dek.health, self.dek.max_health)
-            self.visualizer.update_agent_health("thia", self.thia.health, self.thia.max_health)
-            self.visualizer.update_agent_health("boss", self.boss.health, self.boss.max_health)
+            self._update_all_agent_status()
+            self.visualizer.update_alive_count(len([a for a in self.agents if a.is_alive]))
+            if hasattr(self.dek, 'honour'):
+                self.visualizer.update_honour(self.dek.honour)
             self.visualizer.render_grid()
     
     def step(self):
@@ -534,9 +536,11 @@ class SimulationEngine:
         
         if self.visualizer:
             self.visualizer.update_turn(self.turn)
-            self.visualizer.update_agent_health("dek", self.dek.health, self.dek.max_health)
-            self.visualizer.update_agent_health("thia", self.thia.health, self.thia.max_health)
-            self.visualizer.update_agent_health("boss", self.boss.health, self.boss.max_health)
+            self._update_all_agent_status()
+            alive_count = sum(1 for a in self.agents if a.is_alive)
+            self.visualizer.update_alive_count(alive_count)
+            if hasattr(self.dek, 'honour'):
+                self.visualizer.update_honour(self.dek.honour)
         
         if not self.boss.is_alive and self.dek.is_alive:
             self.outcome = "win"
@@ -550,6 +554,30 @@ class SimulationEngine:
             self.outcome = "timeout"
             self.reason = "turn_limit"
             self._finalize()
+    
+    def _update_all_agent_status(self):
+        if not self.visualizer:
+            return
+        
+        for agent in self.agents:
+            agent_class = agent.__class__.__name__
+            key_map = {
+                'Dek': 'dek',
+                'Thia': 'thia',
+                'PredatorFather': 'father',
+                'PredatorBrother': 'brother',
+                'BossAdversary': 'boss'
+            }
+            key = key_map.get(agent_class)
+            if key:
+                self.visualizer.update_agent_status(
+                    key,
+                    agent.health,
+                    agent.max_health,
+                    agent.x,
+                    agent.y,
+                    agent.is_alive
+                )
     
     def _try_pickup(self, agent):
         cell = self.grid.get_cell(agent.x, agent.y)
@@ -583,16 +611,19 @@ def run_visual_simulation():
     engine = SimulationEngine(config)
     visualizer = PredatorVisualizer(config)
     engine.set_visualizer(visualizer)
+    visualizer.set_agents(engine.agents)
     
     visualizer.update_turn(0)
     visualizer.update_weather("Calm")
-    visualizer.update_agent_health("dek", engine.dek.health, engine.dek.max_health)
-    visualizer.update_agent_health("thia", engine.thia.health, engine.thia.max_health)
-    visualizer.update_agent_health("boss", engine.boss.health, engine.boss.max_health)
+    engine._update_all_agent_status()
+    visualizer.update_alive_count(len([a for a in engine.agents if a.is_alive]))
+    if hasattr(engine.dek, 'honour'):
+        visualizer.update_honour(engine.dek.honour)
     visualizer.render_grid()
     
     visualizer.log_event("PREDATOR: BADLANDS initialized", "system")
     visualizer.log_event("Press START or SPACE to begin", "system")
+    visualizer.log_event("Hover on agents for details", "system")
     
     visualizer.run()
 
