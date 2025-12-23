@@ -369,6 +369,9 @@ class SimulationEngine:
         from items import random_item
         from weather import WeatherSystem
         from event_logger import EventLogger
+        from coordination import CoordinationProtocol, Role
+        from learning import LearningSystem, ActionSpace
+        from procedural import ProceduralSystem, DifficultyLevel, HazardType
         import random
         
         self.config = config
@@ -395,6 +398,21 @@ class SimulationEngine:
         self.BossAdversary = BossAdversary
         self.WeatherSystem = WeatherSystem
         self.EventLogger = EventLogger
+        
+        self.CoordinationProtocol = CoordinationProtocol
+        self.LearningSystem = LearningSystem
+        self.ProceduralSystem = ProceduralSystem
+        self.DifficultyLevel = DifficultyLevel
+        self.HazardType = HazardType
+        self.ActionSpace = ActionSpace
+        self.Role = Role
+        
+        self.coordination = None
+        self.learning = None
+        self.procedural = None
+        
+        self.prev_dek_state = {}
+        self.prev_thia_state = {}
         
         self.visualizer = None
         self.initialize()
@@ -441,6 +459,53 @@ class SimulationEngine:
             item = self.random_item()
             cell.add_item(item)
             placed += 1
+        
+        self._initialize_phase9_systems()
+    
+    def _initialize_phase9_systems(self):
+        self.coordination = self.CoordinationProtocol()
+        self.coordination.initialize(self.dek, self.thia)
+        
+        self.learning = self.LearningSystem()
+        self.learning.initialize_boss_ai(self.boss)
+        
+        difficulty_map = {
+            'easy': self.DifficultyLevel.EASY,
+            'medium': self.DifficultyLevel.MEDIUM,
+            'hard': self.DifficultyLevel.HARD,
+            'nightmare': self.DifficultyLevel.NIGHTMARE
+        }
+        diff_name = self.config.get("difficulty", "level", "medium").lower()
+        diff_level = difficulty_map.get(diff_name, self.DifficultyLevel.MEDIUM)
+        
+        self.procedural = self.ProceduralSystem(
+            self.config.grid_width,
+            self.config.grid_height,
+            diff_level
+        )
+        self.procedural.initialize(initial_hazard_count=3)
+        
+        self.prev_dek_state = self._capture_agent_state(self.dek)
+        self.prev_thia_state = self._capture_agent_state(self.thia)
+    
+    def _capture_agent_state(self, agent):
+        return {
+            'health': agent.health,
+            'health_pct': (agent.health / agent.max_health) * 100 if agent.max_health > 0 else 0,
+            'stamina': agent.stamina,
+            'kills': getattr(agent, 'kill_count', 0),
+            'damage_dealt': getattr(agent, 'total_damage_dealt', 0),
+            'honour': getattr(agent, 'honour', 0),
+            'partner_health': 0
+        }
+    
+    def _get_enemies(self):
+        enemies = []
+        for agent in self.agents:
+            if agent.is_alive and agent != self.dek and agent != self.thia:
+                if hasattr(agent, 'aggression_level') or hasattr(agent, 'phase'):
+                    enemies.append(agent)
+        return enemies
     
     def set_visualizer(self, visualizer):
         self.visualizer = visualizer
@@ -491,6 +556,8 @@ class SimulationEngine:
             cell.add_item(item)
             placed += 1
         
+        self._initialize_phase9_systems()
+        
         if self.visualizer:
             self.visualizer.set_grid(self.grid)
             self.visualizer.set_agents(self.agents)
@@ -501,6 +568,8 @@ class SimulationEngine:
             if hasattr(self.dek, 'honour'):
                 self.visualizer.update_honour(self.dek.honour)
             self.visualizer.render_grid()
+            self.visualizer.log_event("Phase 9 systems initialized", "system")
+            self.visualizer.log_event("Coordination & Q-Learning active", "system")
     
     def step(self):
         if self.outcome:
@@ -516,11 +585,17 @@ class SimulationEngine:
                 self.visualizer.update_weather(self.weather.current.name)
                 self.visualizer.log_event(f"Weather: {self.weather.current.name}", "weather")
         
+        self._process_procedural_hazards()
+        
+        self._process_coordination_and_learning()
+        
         for agent in list(self.agents):
             if not agent.is_alive:
                 continue
             agent.step()
             self._try_pickup(agent)
+        
+        self._process_boss_adaptive_ai()
         
         wd = self.weather.damage_this_turn()
         if wd > 0:
@@ -533,6 +608,8 @@ class SimulationEngine:
                         if self.visualizer:
                             name = getattr(agent, 'name', agent.__class__.__name__)
                             self.visualizer.log_event(f"{name} takes {wd} weather damage", "combat")
+        
+        self._update_learning_systems()
         
         if self.visualizer:
             self.visualizer.update_turn(self.turn)
@@ -554,6 +631,108 @@ class SimulationEngine:
             self.outcome = "timeout"
             self.reason = "turn_limit"
             self._finalize()
+    
+    def _process_procedural_hazards(self):
+        if not self.procedural:
+            return
+        
+        game_state = {
+            'player_position': (self.dek.x, self.dek.y),
+            'turn': self.turn
+        }
+        
+        result = self.procedural.update(self.turn, game_state)
+        
+        for agent in self.agents:
+            if agent.is_alive:
+                hazard_damage = self.procedural.get_damage_at_position((agent.x, agent.y))
+                if hazard_damage > 0:
+                    agent.take_damage(hazard_damage)
+                    if self.visualizer:
+                        name = getattr(agent, 'name', agent.__class__.__name__)
+                        self.visualizer.log_event(f"{name} takes {hazard_damage} hazard damage", "combat")
+        
+        for event in result.get('events', []):
+            if event['type'] == 'weather_change':
+                if self.visualizer:
+                    self.visualizer.log_event(f"Environmental: {event.get('weather', 'unknown')}", "weather")
+    
+    def _process_coordination_and_learning(self):
+        if not self.coordination or not self.learning:
+            return
+        
+        if not self.dek.is_alive:
+            return
+        
+        enemies = self._get_enemies()
+        
+        planned_actions = self.coordination.plan_coordinated_turn(
+            self.dek, self.thia, enemies, self.grid
+        )
+        
+        if self.dek.name in planned_actions:
+            dek_action = planned_actions[self.dek.name]
+            all_agents = {a.name: a for a in self.agents if hasattr(a, 'name')}
+            self.coordination.execute_coordinated_action(
+                dek_action, self.dek, self.grid, all_agents
+            )
+        
+        if self.thia and self.thia.is_alive and self.thia.name in planned_actions:
+            thia_action = planned_actions[self.thia.name]
+            all_agents = {a.name: a for a in self.agents if hasattr(a, 'name')}
+            self.coordination.execute_coordinated_action(
+                thia_action, self.thia, self.grid, all_agents
+            )
+        
+        coord_stats = self.coordination.get_coordination_stats()
+        if self.visualizer and coord_stats.get('coordination_score', 0) > 50:
+            self.visualizer.log_event(f"Coordination level: {coord_stats['coordination_score']:.0f}%", "system")
+    
+    def _process_boss_adaptive_ai(self):
+        if not self.learning or not self.learning.boss_ai:
+            return
+        
+        if not self.boss.is_alive:
+            return
+        
+        enemies = [self.dek, self.thia] if self.thia and self.thia.is_alive else [self.dek]
+        enemies = [e for e in enemies if e.is_alive]
+        
+        if not enemies:
+            return
+        
+        boss_action = self.learning.get_boss_action(enemies, self.grid)
+        self.learning.boss_ai.execute_adaptive_action(boss_action, self.grid)
+        
+        if self.visualizer:
+            pattern = self.learning.boss_ai.current_pattern.pattern_type.value
+            if self.turn % 10 == 0:
+                self.visualizer.log_event(f"Boss pattern: {pattern}", "system")
+    
+    def _update_learning_systems(self):
+        if not self.learning:
+            return
+        
+        curr_dek_state = self._capture_agent_state(self.dek)
+        curr_thia_state = self._capture_agent_state(self.thia) if self.thia else {}
+        
+        enemies = self._get_enemies()
+        
+        dek_action = self.learning.get_dek_action(self.dek, enemies, self.thia)
+        self.learning.update_dek_learning(
+            self.dek, self.prev_dek_state, curr_dek_state,
+            dek_action, enemies, self.thia
+        )
+        
+        if self.thia and self.thia.is_alive:
+            thia_action = self.learning.get_thia_action(self.thia, self.dek, enemies)
+            self.learning.update_thia_learning(
+                self.thia, self.dek, self.prev_thia_state, curr_thia_state,
+                thia_action, enemies
+            )
+        
+        self.prev_dek_state = curr_dek_state
+        self.prev_thia_state = curr_thia_state
     
     def _update_all_agent_status(self):
         if not self.visualizer:
@@ -598,8 +777,25 @@ class SimulationEngine:
         self.logger.log_outcome(self.outcome, self.turn, self.reason)
         self.logger.export_events_json('data/visual_run.json')
         
+        if self.learning:
+            self.learning.end_episode()
+            try:
+                self.learning.save_learning_data('data')
+            except Exception:
+                pass
+        
         if self.visualizer:
             self.visualizer.log_event(f"SIMULATION ENDED: {self.outcome.upper()}", "system")
+            
+            if self.learning:
+                stats = self.learning.get_learning_stats()
+                dek_updates = stats.get('dek_stats', {}).get('total_updates', 0)
+                self.visualizer.log_event(f"Q-Learning updates: {dek_updates}", "system")
+            
+            if self.coordination:
+                coord_stats = self.coordination.get_coordination_stats()
+                self.visualizer.log_event(f"Final coordination: {coord_stats.get('coordination_score', 0):.0f}%", "system")
+            
             self.visualizer.show_outcome(self.outcome, self.reason)
 
 
