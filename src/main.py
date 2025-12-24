@@ -426,21 +426,21 @@ class SimulationEngine:
         self.outcome = None
         self.reason = ""
         
-        self.dek = self.Dek(10, 10)
-        self.thia = self.Thia(11, 10)
-        father = self.PredatorFather("Elder Kaail", 5, 5)
-        brother = self.PredatorBrother("Cetanu", 15, 10)
+        self.dek = self.Dek(12, 12)
+        self.thia = self.Thia(13, 12)
+        father = self.PredatorFather("Elder Kaail", 6, 6)
+        brother = self.PredatorBrother("Cetanu", 18, 12)
         
         wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
         wildlife = []
-        positions = [(12, 12), (18, 18), (22, 8), (8, 22), (20, 20)]
+        positions = [(8, 8), (20, 8), (8, 18), (20, 18), (14, 16)]
         for i in range(min(wildlife_count, len(positions))):
             px, py = positions[i]
             w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
             wildlife.append(w)
         
         boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
-        self.boss = self.BossAdversary("Ultimate Adversary", 25, 25)
+        self.boss = self.BossAdversary("Ultimate Adversary", 22, 22)
         self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
         self.boss.health = self.boss.max_health
         
@@ -522,21 +522,21 @@ class SimulationEngine:
         self.outcome = None
         self.reason = ""
         
-        self.dek = self.Dek(10, 10)
-        self.thia = self.Thia(11, 10)
-        father = self.PredatorFather("Elder Kaail", 5, 5)
-        brother = self.PredatorBrother("Cetanu", 15, 10)
+        self.dek = self.Dek(12, 12)
+        self.thia = self.Thia(13, 12)
+        father = self.PredatorFather("Elder Kaail", 6, 6)
+        brother = self.PredatorBrother("Cetanu", 18, 12)
         
         wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
         wildlife = []
-        positions = [(12, 12), (18, 18), (22, 8), (8, 22), (20, 20)]
+        positions = [(8, 8), (20, 8), (8, 18), (20, 18), (14, 16)]
         for i in range(min(wildlife_count, len(positions))):
             px, py = positions[i]
             w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
             wildlife.append(w)
         
         boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
-        self.boss = self.BossAdversary("Ultimate Adversary", 25, 25)
+        self.boss = self.BossAdversary("Ultimate Adversary", 22, 22)
         self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
         self.boss.health = self.boss.max_health
         
