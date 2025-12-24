@@ -780,12 +780,11 @@ class SimulationEngine:
         for it in cell.items:
             if it.apply(agent):
                 self.logger.log_item_pickup(agent, it)
-                # Track items collected for Dek
                 if agent == self.dek and hasattr(agent, 'items_collected'):
                     agent.items_collected += 1
                 if self.visualizer:
                     name = getattr(agent, 'name', agent.__class__.__name__)
-                    self.visualizer.log_item_pickup(name, it.name)
+                    self.visualizer.log_item_pickup(name, it.name, agent.x, agent.y)
             else:
                 new_items.append(it)
         cell.items = new_items

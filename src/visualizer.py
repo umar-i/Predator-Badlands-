@@ -187,9 +187,30 @@ class PredatorVisualizer:
             'Hard': {'boss_hp': 250, 'wildlife_damage': 1.5}
         }
         
+        self.achievements = []
+        self.achievement_queue = []
+        self.showing_achievement = False
+        
+        self.tutorial_active = False
+        self.tutorial_step = 0
+        self.tutorial_steps = [
+            {"title": "WELCOME HUNTER", "text": "You are Dek, an exiled Yautja warrior. Your mission: survive and defeat the Boss!", "highlight": None},
+            {"title": "CONTROLS", "text": "Press SPACE to start/pause. Use STEP button for turn-by-turn control.", "highlight": "controls"},
+            {"title": "YOUR ALLIES", "text": "Thia (cyan) is your android ally. Father & Brother are clan members.", "highlight": "agents"},
+            {"title": "COMBAT STATS", "text": "Track your damage, kills, and items here. Watch the Boss HP bar!", "highlight": "stats"},
+            {"title": "SPEED CONTROL", "text": "Use speed presets or keys 1-4 to control simulation speed.", "highlight": "speed"},
+            {"title": "VICTORY", "text": "Defeat the Boss (purple skull) to win. Good luck, Hunter!", "highlight": None}
+        ]
+        
+        self.combat_animations = []
+        self.animation_frame = 0
+        
+        self.save_slots = {}
+        
         self._build_ui()
         self._bind_keys()
         self._start_pulse_animation()
+        self._start_animation_loop()
     
     def _build_ui(self):
         self.main_frame = tk.Frame(self.root, bg=self.colors['background'])
@@ -235,10 +256,36 @@ class PredatorVisualizer:
         right_panel.pack(side=tk.RIGHT, fill=tk.Y)
         right_panel.pack_propagate(False)
         
+        self._build_minimap(right_panel)
         self._build_status_panel(right_panel)
         self._build_stats_panel(right_panel)
         self._build_agents_panel(right_panel)
         self._build_log_panel(right_panel)
+    
+    def _build_minimap(self, parent):
+        minimap_frame = tk.LabelFrame(
+            parent,
+            text=" TACTICAL MAP ",
+            font=("Consolas", 9, "bold"),
+            fg=self.colors['text_warning'],
+            bg=self.colors['panel_bg'],
+            padx=5,
+            pady=5
+        )
+        minimap_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        self.minimap_size = 120
+        self.minimap_cell = 4
+        
+        self.minimap = tk.Canvas(
+            minimap_frame,
+            width=self.minimap_size,
+            height=self.minimap_size,
+            bg='#0a0a0a',
+            highlightthickness=1,
+            highlightbackground=self.colors['panel_border']
+        )
+        self.minimap.pack()
     
     def _build_grid_canvas(self, parent):
         canvas_frame = tk.Frame(
@@ -744,6 +791,35 @@ class PredatorVisualizer:
             **button_style
         )
         self.settings_btn.pack(side=tk.LEFT, padx=2)
+        
+        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        
+        extra_frame = tk.Frame(control_frame, bg=self.colors['background'])
+        extra_frame.pack(side=tk.LEFT)
+        
+        self.save_btn = tk.Button(
+            extra_frame,
+            text="💾 SAVE",
+            command=self._save_game,
+            **button_style
+        )
+        self.save_btn.pack(side=tk.LEFT, padx=2)
+        
+        self.load_btn = tk.Button(
+            extra_frame,
+            text="📂 LOAD",
+            command=self._load_game,
+            **button_style
+        )
+        self.load_btn.pack(side=tk.LEFT, padx=2)
+        
+        self.tutorial_btn = tk.Button(
+            extra_frame,
+            text="❓ HELP",
+            command=self._start_tutorial,
+            **button_style
+        )
+        self.tutorial_btn.pack(side=tk.LEFT, padx=2)
     
     def _on_speed_preset_change(self, event=None):
         """Handle speed preset dropdown change"""
@@ -891,6 +967,355 @@ class PredatorVisualizer:
         
         threading.Thread(target=_play, daemon=True).start()
     
+    def _save_game(self):
+        import json
+        import os
+        
+        if not self.grid_data:
+            self.log_event("No game to save!", "system")
+            return
+        
+        save_data = {
+            'turn': self.turn,
+            'stats': {
+                'damage_dealt': self.stats['damage_dealt'],
+                'damage_taken': self.stats['damage_taken'],
+                'kills': self.stats['kills'],
+                'items_collected': self.stats['items_collected'],
+                'boss_current_hp': self.stats['boss_current_hp'],
+                'boss_initial_hp': self.stats['boss_initial_hp']
+            },
+            'difficulty': self.difficulty,
+            'agents': []
+        }
+        
+        for agent in self.agents:
+            agent_data = {
+                'name': getattr(agent, 'name', agent.__class__.__name__),
+                'type': agent.__class__.__name__,
+                'x': agent.x,
+                'y': agent.y,
+                'health': getattr(agent, 'health', 0),
+                'max_health': getattr(agent, 'max_health', 100),
+                'is_alive': agent.is_alive
+            }
+            save_data['agents'].append(agent_data)
+        
+        os.makedirs('data', exist_ok=True)
+        with open('data/savegame.json', 'w') as f:
+            json.dump(save_data, f, indent=2)
+        
+        self.log_event("Game saved successfully!", "system")
+        self.play_sound('item')
+        self.show_achievement("GAME SAVED", "Progress saved to slot 1")
+    
+    def _load_game(self):
+        import json
+        import os
+        
+        save_path = 'data/savegame.json'
+        if not os.path.exists(save_path):
+            self.log_event("No save file found!", "system")
+            return
+        
+        try:
+            with open(save_path, 'r') as f:
+                save_data = json.load(f)
+            
+            self.turn = save_data.get('turn', 0)
+            self.update_turn(self.turn)
+            
+            stats = save_data.get('stats', {})
+            self.stats['damage_dealt'] = stats.get('damage_dealt', 0)
+            self.stats['damage_taken'] = stats.get('damage_taken', 0)
+            self.stats['kills'] = stats.get('kills', 0)
+            self.stats['items_collected'] = stats.get('items_collected', 0)
+            self.stats['boss_current_hp'] = stats.get('boss_current_hp', 150)
+            self.stats['boss_initial_hp'] = stats.get('boss_initial_hp', 150)
+            
+            self.update_stats(
+                self.stats['damage_dealt'],
+                self.stats['damage_taken'],
+                self.stats['kills'],
+                self.stats['items_collected']
+            )
+            self.update_boss_hp(self.stats['boss_current_hp'], self.stats['boss_initial_hp'])
+            
+            self.log_event("Game loaded successfully!", "system")
+            self.play_sound('item')
+            self.show_achievement("GAME LOADED", f"Resumed from turn {self.turn}")
+            
+        except Exception as e:
+            self.log_event(f"Failed to load: {str(e)}", "system")
+    
+    def _start_tutorial(self):
+        self.tutorial_active = True
+        self.tutorial_step = 0
+        self._show_tutorial_step()
+    
+    def _show_tutorial_step(self):
+        if not self.tutorial_active or self.tutorial_step >= len(self.tutorial_steps):
+            self.tutorial_active = False
+            return
+        
+        step = self.tutorial_steps[self.tutorial_step]
+        
+        tutorial_window = tk.Toplevel(self.root)
+        tutorial_window.title("TUTORIAL")
+        tutorial_window.geometry("450x200")
+        tutorial_window.configure(bg=self.colors['background'])
+        tutorial_window.transient(self.root)
+        tutorial_window.grab_set()
+        
+        tk.Label(
+            tutorial_window,
+            text=f"Step {self.tutorial_step + 1}/{len(self.tutorial_steps)}",
+            font=("Consolas", 9),
+            fg=self.colors['text_secondary'],
+            bg=self.colors['background']
+        ).pack(pady=(10, 0))
+        
+        tk.Label(
+            tutorial_window,
+            text=step['title'],
+            font=("Consolas", 16, "bold"),
+            fg=self.colors['text_primary'],
+            bg=self.colors['background']
+        ).pack(pady=10)
+        
+        tk.Label(
+            tutorial_window,
+            text=step['text'],
+            font=("Consolas", 11),
+            fg=self.colors['text_secondary'],
+            bg=self.colors['background'],
+            wraplength=400
+        ).pack(pady=10)
+        
+        btn_frame = tk.Frame(tutorial_window, bg=self.colors['background'])
+        btn_frame.pack(pady=15)
+        
+        def next_step():
+            tutorial_window.destroy()
+            self.tutorial_step += 1
+            if self.tutorial_step < len(self.tutorial_steps):
+                self._show_tutorial_step()
+            else:
+                self.tutorial_active = False
+                self.show_achievement("TUTORIAL COMPLETE", "You are ready to hunt!")
+        
+        def skip_tutorial():
+            tutorial_window.destroy()
+            self.tutorial_active = False
+        
+        if self.tutorial_step < len(self.tutorial_steps) - 1:
+            tk.Button(
+                btn_frame,
+                text="NEXT →",
+                command=next_step,
+                font=("Consolas", 10, "bold"),
+                bg=self.colors['panel_bg'],
+                fg=self.colors['text_primary'],
+                padx=20, pady=5
+            ).pack(side=tk.LEFT, padx=5)
+        else:
+            tk.Button(
+                btn_frame,
+                text="START HUNTING!",
+                command=next_step,
+                font=("Consolas", 10, "bold"),
+                bg=self.colors['panel_bg'],
+                fg='#00ff00',
+                padx=20, pady=5
+            ).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(
+            btn_frame,
+            text="SKIP",
+            command=skip_tutorial,
+            font=("Consolas", 10),
+            bg=self.colors['panel_bg'],
+            fg=self.colors['text_secondary'],
+            padx=20, pady=5
+        ).pack(side=tk.LEFT, padx=5)
+    
+    def show_achievement(self, title, description):
+        self.achievement_queue.append({'title': title, 'description': description})
+        if not self.showing_achievement:
+            self._display_next_achievement()
+    
+    def _display_next_achievement(self):
+        if not self.achievement_queue:
+            self.showing_achievement = False
+            return
+        
+        self.showing_achievement = True
+        achievement = self.achievement_queue.pop(0)
+        
+        popup = tk.Toplevel(self.root)
+        popup.overrideredirect(True)
+        popup.configure(bg=self.colors['panel_border'])
+        
+        screen_width = self.root.winfo_screenwidth()
+        popup_width = 300
+        popup_height = 80
+        x = screen_width - popup_width - 20
+        y = 50
+        popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
+        
+        inner = tk.Frame(popup, bg=self.colors['panel_bg'], padx=10, pady=8)
+        inner.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        tk.Label(
+            inner,
+            text="🏆 " + achievement['title'],
+            font=("Consolas", 12, "bold"),
+            fg='#ffd700',
+            bg=self.colors['panel_bg']
+        ).pack(anchor=tk.W)
+        
+        tk.Label(
+            inner,
+            text=achievement['description'],
+            font=("Consolas", 9),
+            fg=self.colors['text_secondary'],
+            bg=self.colors['panel_bg']
+        ).pack(anchor=tk.W)
+        
+        self.play_sound('item')
+        
+        def close_popup():
+            popup.destroy()
+            self.root.after(200, self._display_next_achievement)
+        
+        self.root.after(2500, close_popup)
+    
+    def add_combat_animation(self, x, y, anim_type):
+        self.combat_animations.append({
+            'x': x,
+            'y': y,
+            'type': anim_type,
+            'frame': 0,
+            'max_frames': 8
+        })
+    
+    def _start_animation_loop(self):
+        self._process_animations()
+        self.root.after(50, self._start_animation_loop)
+    
+    def _process_animations(self):
+        if not self.combat_animations:
+            return
+        
+        self.canvas.delete("animation")
+        
+        remaining = []
+        for anim in self.combat_animations:
+            anim['frame'] += 1
+            if anim['frame'] < anim['max_frames']:
+                remaining.append(anim)
+                self._draw_animation(anim)
+        
+        self.combat_animations = remaining
+    
+    def _draw_animation(self, anim):
+        x = anim['x'] * self.cell_size + self.cell_size // 2
+        y = anim['y'] * self.cell_size + self.cell_size // 2
+        frame = anim['frame']
+        max_f = anim['max_frames']
+        progress = frame / max_f
+        
+        if anim['type'] == 'hit':
+            radius = int(5 + progress * 15)
+            alpha = int(255 * (1 - progress))
+            color = f'#{alpha:02x}4444'
+            self.canvas.create_oval(
+                x - radius, y - radius, x + radius, y + radius,
+                outline=self.colors['combat_flash'],
+                width=2,
+                tags="animation"
+            )
+        elif anim['type'] == 'kill':
+            for i in range(4):
+                angle = (i * 90 + frame * 20) * 3.14159 / 180
+                dist = progress * 20
+                px = x + int(math.cos(angle) * dist)
+                py = y + int(math.sin(angle) * dist)
+                size = int(4 * (1 - progress))
+                if size > 0:
+                    self.canvas.create_oval(
+                        px - size, py - size, px + size, py + size,
+                        fill='#ff0000',
+                        outline='',
+                        tags="animation"
+                    )
+        elif anim['type'] == 'item':
+            size = int(8 * (1 - progress))
+            self.canvas.create_text(
+                x, y - int(progress * 20),
+                text="+",
+                font=("Consolas", 12 + size, "bold"),
+                fill='#ffff00',
+                tags="animation"
+            )
+        elif anim['type'] == 'critical':
+            self.canvas.create_text(
+                x, y - int(progress * 25),
+                text="CRITICAL!",
+                font=("Consolas", 10, "bold"),
+                fill='#ff0000' if frame % 2 == 0 else '#ffff00',
+                tags="animation"
+            )
+    
+    def update_minimap(self):
+        if not self.grid_data:
+            return
+        
+        self.minimap.delete("all")
+        
+        scale = self.minimap_size / max(self.config.grid_width, self.config.grid_height)
+        
+        for agent in self.agents:
+            if not agent.is_alive:
+                continue
+            
+            mx = int(agent.x * scale)
+            my = int(agent.y * scale)
+            
+            agent_type = agent.__class__.__name__
+            if agent_type == 'Dek':
+                color = self.colors['dek']
+                size = 4
+            elif agent_type == 'Thia':
+                color = self.colors['thia']
+                size = 3
+            elif agent_type == 'BossAdversary':
+                color = self.colors['boss']
+                size = 5
+            elif 'Predator' in agent_type:
+                color = self.colors['father']
+                size = 3
+            else:
+                color = self.colors['wildlife']
+                size = 2
+            
+            self.minimap.create_oval(
+                mx - size, my - size, mx + size, my + size,
+                fill=color,
+                outline='white',
+                width=1
+            )
+        
+        if self.dek_ref and self.dek_ref.is_alive:
+            dx = int(self.dek_ref.x * scale)
+            dy = int(self.dek_ref.y * scale)
+            self.minimap.create_rectangle(
+                dx - 8, dy - 8, dx + 8, dy + 8,
+                outline=self.colors['dek'],
+                width=1,
+                dash=(2, 2)
+            )
+    
     def _start_pulse_animation(self):
         self.pulse_phase = (self.pulse_phase + 1) % 20
         self.root.after(100, self._start_pulse_animation)
@@ -1037,7 +1462,9 @@ class PredatorVisualizer:
         self.alive_count_label.config(text=f"Active Signatures: {count}")
     
     def update_stats(self, damage_dealt=0, damage_taken=0, kills=0, items_collected=0):
-        """Update the real-time combat statistics dashboard"""
+        old_kills = self.stats['kills']
+        old_items = self.stats['items_collected']
+        
         self.stats['damage_dealt'] = damage_dealt
         self.stats['damage_taken'] = damage_taken
         self.stats['kills'] = kills
@@ -1047,19 +1474,33 @@ class PredatorVisualizer:
         self.dmg_taken_label.config(text=str(int(damage_taken)))
         self.kills_label.config(text=str(kills))
         self.items_label.config(text=str(items_collected))
+        
+        if kills > old_kills:
+            self.show_achievement("KILL!", f"Enemies slain: {kills}")
+        
+        if items_collected > old_items and items_collected in [5, 10, 15]:
+            self.show_achievement("COLLECTOR", f"Items gathered: {items_collected}")
+        
+        if damage_dealt >= 100 and old_kills == 0 and kills == 0:
+            if not hasattr(self, '_dmg_milestone'):
+                self._dmg_milestone = set()
+            milestone = (damage_dealt // 100) * 100
+            if milestone not in self._dmg_milestone:
+                self._dmg_milestone.add(milestone)
+                self.show_achievement("WARRIOR", f"Damage dealt: {milestone}+")
+        
+        self.update_minimap()
     
     def update_boss_hp(self, current_hp, max_hp):
-        """Update boss HP progress bar"""
+        old_hp = self.stats.get('boss_current_hp', max_hp)
         self.stats['boss_current_hp'] = current_hp
         self.stats['boss_initial_hp'] = max_hp
         
         ratio = max(0, min(1, current_hp / max_hp)) if max_hp > 0 else 0
         fill_width = int(260 * ratio)
         
-        # Update progress bar
         self.boss_hp_bar.delete("boss_hp")
         if fill_width > 0:
-            # Color changes based on HP
             if ratio > 0.5:
                 color = self.colors['boss']
             elif ratio > 0.25:
@@ -1074,21 +1515,41 @@ class PredatorVisualizer:
             )
         
         self.boss_hp_text.config(text=f"{int(current_hp)}/{int(max_hp)}")
+        
+        if not hasattr(self, '_boss_milestones'):
+            self._boss_milestones = set()
+        
+        old_ratio = old_hp / max_hp if max_hp > 0 else 1
+        
+        if old_ratio > 0.75 and ratio <= 0.75 and 75 not in self._boss_milestones:
+            self._boss_milestones.add(75)
+            self.show_achievement("BOSS WOUNDED", "Boss HP below 75%!")
+        
+        if old_ratio > 0.5 and ratio <= 0.5 and 50 not in self._boss_milestones:
+            self._boss_milestones.add(50)
+            self.show_achievement("HALFWAY THERE", "Boss HP below 50%!")
+        
+        if old_ratio > 0.25 and ratio <= 0.25 and 25 not in self._boss_milestones:
+            self._boss_milestones.add(25)
+            self.show_achievement("ALMOST DEAD", "Boss HP below 25%!")
+        
+        if current_hp <= 0 and old_hp > 0:
+            self.show_achievement("BOSS SLAIN!", "You have defeated the Ultimate Adversary!")
     
-    def log_combat(self, attacker, target, damage):
-        """Log combat with sound effect"""
+    def log_combat(self, attacker, target, damage, target_x=0, target_y=0):
         self.log_event(f"{attacker} hits {target} for {damage} damage", "combat")
         self.play_sound('hit')
+        self.add_combat_animation(target_x, target_y, 'hit')
     
-    def log_kill(self, killer, victim):
-        """Log kill with sound effect"""
+    def log_kill(self, killer, victim, victim_x=0, victim_y=0):
         self.log_event(f"💀 {killer} killed {victim}!", "combat")
         self.play_sound('kill')
+        self.add_combat_animation(victim_x, victim_y, 'kill')
     
-    def log_item_pickup(self, agent, item_name):
-        """Log item pickup with sound effect"""
+    def log_item_pickup(self, agent, item_name, agent_x=0, agent_y=0):
         self.log_event(f"📦 {agent} picked up {item_name}", "item")
         self.play_sound('item')
+        self.add_combat_animation(agent_x, agent_y, 'item')
 
     def render_grid(self):
         if not self.grid_data:
