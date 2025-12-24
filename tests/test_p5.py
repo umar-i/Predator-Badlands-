@@ -115,7 +115,7 @@ class TestBossAdversary(unittest.TestCase):
     def test_boss_stats(self):
         boss = BossAdversary()
         
-        self.assertEqual(boss.max_health, 500)
+        self.assertEqual(boss.max_health, 150)
         self.assertEqual(boss.max_stamina, 300)
         self.assertEqual(boss.size, 3)
         self.assertEqual(boss.attack_range, 2)
@@ -170,9 +170,9 @@ class TestBossDamage(unittest.TestCase):
     
     def test_take_damage_phase_transition(self):
         boss = BossAdversary()
-        boss.health = 300
+        boss.health = 100  # 66% of 150 HP
         
-        boss.take_damage(100)
+        boss.take_damage(30)  # Drop to ~47% triggers phase 2
         
         self.assertEqual(boss.phase, 2)
     
@@ -203,7 +203,7 @@ class TestBossActions(unittest.TestCase):
     
     def test_decide_action_low_health(self):
         boss = BossAdversary()
-        boss.health = 100
+        boss.health = 30  # 20% of 150 HP - actually low health
         grid = Grid(30, 30)
         boss.set_grid(grid)
         grid.place_agent(boss, 15, 15)

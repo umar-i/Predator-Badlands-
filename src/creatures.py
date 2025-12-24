@@ -129,7 +129,7 @@ class WildlifeAgent(Agent):
 class BossAdversary(Agent):
     
     def __init__(self, name="Ultimate Adversary", x=10, y=10):
-        super().__init__(name, x, y, max_health=500, max_stamina=300)
+        super().__init__(name, x, y, max_health=150, max_stamina=300)
         self.size = 3
         self.attack_range = 2
         self.special_abilities = ["earthquake", "energy_blast", "regeneration"]

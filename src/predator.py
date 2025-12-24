@@ -137,6 +137,11 @@ class Dek(PredatorAgent):
         self.thia_partner = None
         self.quest_progress = 0
         
+        # Combat statistics tracking
+        self.total_damage_dealt = 0
+        self.kill_count = 0
+        self.items_collected = 0
+        
     @property
     def symbol(self):
         return 'D'
@@ -235,6 +240,9 @@ class Dek(PredatorAgent):
         
         target.take_damage(base_damage)
         
+        # Track damage dealt
+        self.total_damage_dealt += base_damage
+        
         kill = not target.is_alive
         combat_result = CombatResult(self, target, base_damage, kill)
         
@@ -242,6 +250,7 @@ class Dek(PredatorAgent):
         result.add_combat_result(combat_result)
         
         if kill:
+            self.kill_count += 1  # Track kills
             self.gain_honour(5)
             trophy = self.create_trophy_from_kill(target)
             if trophy:

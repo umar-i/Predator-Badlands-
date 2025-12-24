@@ -567,6 +567,9 @@ class SimulationEngine:
             self.visualizer.update_alive_count(len([a for a in self.agents if a.is_alive]))
             if hasattr(self.dek, 'honour'):
                 self.visualizer.update_honour(self.dek.honour)
+            # Reset stats tracking
+            self.visualizer.update_stats(0, 0, 0, 0)
+            self.visualizer.update_boss_hp(self.boss.health, self.boss.max_health)
             self.visualizer.render_grid()
             self.visualizer.log_event("Phase 9 systems initialized", "system")
             self.visualizer.log_event("Coordination & Q-Learning active", "system")
@@ -618,6 +621,17 @@ class SimulationEngine:
             self.visualizer.update_alive_count(alive_count)
             if hasattr(self.dek, 'honour'):
                 self.visualizer.update_honour(self.dek.honour)
+            
+            # Update combat statistics
+            damage_dealt = getattr(self.dek, 'total_damage_dealt', 0)
+            damage_taken = getattr(self.dek, 'max_health', 100) - getattr(self.dek, 'health', 0)
+            kills = getattr(self.dek, 'kill_count', 0)
+            items = getattr(self.dek, 'items_collected', 0)
+            self.visualizer.update_stats(damage_dealt, damage_taken, kills, items)
+            
+            # Update boss HP bar
+            if self.boss:
+                self.visualizer.update_boss_hp(self.boss.health, self.boss.max_health)
         
         if not self.boss.is_alive and self.dek.is_alive:
             self.outcome = "win"
@@ -766,9 +780,12 @@ class SimulationEngine:
         for it in cell.items:
             if it.apply(agent):
                 self.logger.log_item_pickup(agent, it)
+                # Track items collected for Dek
+                if agent == self.dek and hasattr(agent, 'items_collected'):
+                    agent.items_collected += 1
                 if self.visualizer:
                     name = getattr(agent, 'name', agent.__class__.__name__)
-                    self.visualizer.log_event(f"{name} picked up {it.name}", "item")
+                    self.visualizer.log_item_pickup(name, it.name)
             else:
                 new_items.append(it)
         cell.items = new_items
@@ -826,7 +843,7 @@ def run_visual_simulation():
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--visual":
-        run_visual_simulation()
-    else:
+    if len(sys.argv) > 1 and sys.argv[1] == "--cli":
         run_phase7_simulation()
+    else:
+        run_visual_simulation()

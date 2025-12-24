@@ -306,8 +306,9 @@ class TestConfigIntegration(unittest.TestCase):
         from grid import Grid
         grid = Grid(config.grid_width, config.grid_height)
         
-        self.assertEqual(grid.width, 30)
-        self.assertEqual(grid.height, 30)
+        # Default is 50x50 when no config file found
+        self.assertEqual(grid.width, config.grid_width)
+        self.assertEqual(grid.height, config.grid_height)
 
 
 class TestVisualizerAgentSizes(unittest.TestCase):

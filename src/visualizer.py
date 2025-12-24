@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import math
+import winsound
+import threading
 
 
 class PredatorVisualizer:
@@ -131,13 +133,14 @@ class PredatorVisualizer:
     
     def __init__(self, config):
         self.config = config
-        self.cell_size = 26
+        self.cell_size = 22
         self.colors = self.THERMAL_COLORS
         
         self.root = tk.Tk()
         self.root.title("PREDATOR: BADLANDS - Tactical Interface")
         self.root.configure(bg=self.colors['background'])
-        self.root.resizable(False, False)
+        self.root.state('zoomed')
+        self.root.resizable(True, True)
         
         self.grid_data = None
         self.agents = []
@@ -151,6 +154,38 @@ class PredatorVisualizer:
         self.combat_effects = []
         self.dek_ref = None
         self.pulse_phase = 0
+        
+        # Statistics tracking
+        self.stats = {
+            'damage_dealt': 0,
+            'damage_taken': 0,
+            'kills': 0,
+            'items_collected': 0,
+            'boss_initial_hp': 150,
+            'boss_current_hp': 150,
+            'honour_gained': 0,
+            'cells_explored': set()
+        }
+        
+        # Sound settings
+        self.sound_enabled = True
+        self.sound_volume = 50
+        
+        # Speed presets
+        self.speed_presets = {
+            'Slow (0.5x)': 400,
+            'Normal (1x)': 200,
+            'Fast (2x)': 100,
+            'Ultra (4x)': 50
+        }
+        
+        # Difficulty settings
+        self.difficulty = 'Normal'
+        self.difficulty_settings = {
+            'Easy': {'boss_hp': 100, 'wildlife_damage': 0.5},
+            'Normal': {'boss_hp': 150, 'wildlife_damage': 1.0},
+            'Hard': {'boss_hp': 250, 'wildlife_damage': 1.5}
+        }
         
         self._build_ui()
         self._bind_keys()
@@ -201,6 +236,7 @@ class PredatorVisualizer:
         right_panel.pack_propagate(False)
         
         self._build_status_panel(right_panel)
+        self._build_stats_panel(right_panel)
         self._build_agents_panel(right_panel)
         self._build_log_panel(right_panel)
     
@@ -377,6 +413,67 @@ class PredatorVisualizer:
         )
         self.honour_label.pack(side=tk.LEFT)
     
+    def _build_stats_panel(self, parent):
+        """Build the real-time combat statistics dashboard"""
+        stats_frame = tk.LabelFrame(
+            parent,
+            text=" COMBAT STATISTICS ",
+            font=("Consolas", 9, "bold"),
+            fg=self.colors['text_warning'],
+            bg=self.colors['panel_bg'],
+            padx=8,
+            pady=5
+        )
+        stats_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        # Damage dealt row
+        dmg_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
+        dmg_row.pack(fill=tk.X, pady=1)
+        tk.Label(dmg_row, text="⚔ DMG DEALT:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.dmg_dealt_label = tk.Label(dmg_row, text="0", font=("Consolas", 9, "bold"), fg='#00ff00', bg=self.colors['panel_bg'])
+        self.dmg_dealt_label.pack(side=tk.RIGHT)
+        
+        # Damage taken row
+        taken_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
+        taken_row.pack(fill=tk.X, pady=1)
+        tk.Label(taken_row, text="💔 DMG TAKEN:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.dmg_taken_label = tk.Label(taken_row, text="0", font=("Consolas", 9, "bold"), fg='#ff4444', bg=self.colors['panel_bg'])
+        self.dmg_taken_label.pack(side=tk.RIGHT)
+        
+        # Kills row
+        kills_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
+        kills_row.pack(fill=tk.X, pady=1)
+        tk.Label(kills_row, text="💀 KILLS:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.kills_label = tk.Label(kills_row, text="0", font=("Consolas", 9, "bold"), fg='#ff00ff', bg=self.colors['panel_bg'])
+        self.kills_label.pack(side=tk.RIGHT)
+        
+        # Items collected row
+        items_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
+        items_row.pack(fill=tk.X, pady=1)
+        tk.Label(items_row, text="📦 ITEMS:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.items_label = tk.Label(items_row, text="0", font=("Consolas", 9, "bold"), fg='#ffff00', bg=self.colors['panel_bg'])
+        self.items_label.pack(side=tk.RIGHT)
+        
+        # Boss HP progress bar
+        tk.Frame(stats_frame, height=1, bg=self.colors['text_secondary']).pack(fill=tk.X, pady=4)
+        
+        boss_label_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
+        boss_label_row.pack(fill=tk.X)
+        tk.Label(boss_label_row, text="BOSS HEALTH:", font=("Consolas", 8, "bold"), fg=self.colors['boss'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.boss_hp_text = tk.Label(boss_label_row, text="150/150", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg'])
+        self.boss_hp_text.pack(side=tk.RIGHT)
+        
+        self.boss_hp_bar = tk.Canvas(
+            stats_frame,
+            width=260,
+            height=14,
+            bg=self.colors['health_bg'],
+            highlightthickness=1,
+            highlightbackground=self.colors['boss']
+        )
+        self.boss_hp_bar.pack(fill=tk.X, pady=(2, 0))
+        self.boss_hp_bar.create_rectangle(0, 0, 260, 14, fill=self.colors['boss'], tags="boss_hp")
+    
     def _build_agents_panel(self, parent):
         agents_frame = tk.LabelFrame(
             parent,
@@ -548,8 +645,12 @@ class PredatorVisualizer:
         )
         self.reset_btn.pack(side=tk.LEFT, padx=2)
         
+        # Separator
+        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        
+        # Enhanced Speed Controls
         speed_frame = tk.Frame(control_frame, bg=self.colors['background'])
-        speed_frame.pack(side=tk.RIGHT)
+        speed_frame.pack(side=tk.LEFT)
         
         tk.Label(
             speed_frame,
@@ -559,6 +660,18 @@ class PredatorVisualizer:
             bg=self.colors['background']
         ).pack(side=tk.LEFT)
         
+        # Speed preset dropdown
+        self.speed_preset_var = tk.StringVar(value='Normal (1x)')
+        self.speed_dropdown = ttk.Combobox(
+            speed_frame,
+            textvariable=self.speed_preset_var,
+            values=list(self.speed_presets.keys()),
+            width=12,
+            state='readonly'
+        )
+        self.speed_dropdown.pack(side=tk.LEFT, padx=5)
+        self.speed_dropdown.bind('<<ComboboxSelected>>', self._on_speed_preset_change)
+        
         self.speed_var = tk.IntVar(value=self.config.turn_delay)
         self.speed_scale = tk.Scale(
             speed_frame,
@@ -566,14 +679,14 @@ class PredatorVisualizer:
             to=1000,
             orient=tk.HORIZONTAL,
             variable=self.speed_var,
-            length=100,
+            length=80,
             showvalue=False,
             bg=self.colors['panel_bg'],
             fg=self.colors['text_primary'],
             troughcolor=self.colors['background'],
             highlightthickness=0
         )
-        self.speed_scale.pack(side=tk.LEFT, padx=5)
+        self.speed_scale.pack(side=tk.LEFT, padx=2)
         
         self.speed_label = tk.Label(
             speed_frame,
@@ -586,6 +699,150 @@ class PredatorVisualizer:
         self.speed_label.pack(side=tk.LEFT)
         
         self.speed_var.trace_add('write', lambda *args: self.speed_label.config(text=f"{self.speed_var.get()}ms"))
+        
+        # Separator
+        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        
+        # Settings section
+        settings_frame = tk.Frame(control_frame, bg=self.colors['background'])
+        settings_frame.pack(side=tk.LEFT)
+        
+        # Sound toggle button
+        self.sound_btn = tk.Button(
+            settings_frame,
+            text="🔊 SOUND",
+            command=self._toggle_sound,
+            **button_style
+        )
+        self.sound_btn.pack(side=tk.LEFT, padx=2)
+        
+        # Difficulty selector
+        tk.Label(
+            settings_frame,
+            text="DIFF:",
+            font=("Consolas", 9),
+            fg=self.colors['text_secondary'],
+            bg=self.colors['background']
+        ).pack(side=tk.LEFT, padx=(8, 2))
+        
+        self.difficulty_var = tk.StringVar(value='Normal')
+        self.difficulty_dropdown = ttk.Combobox(
+            settings_frame,
+            textvariable=self.difficulty_var,
+            values=['Easy', 'Normal', 'Hard'],
+            width=8,
+            state='readonly'
+        )
+        self.difficulty_dropdown.pack(side=tk.LEFT, padx=2)
+        self.difficulty_dropdown.bind('<<ComboboxSelected>>', self._on_difficulty_change)
+        
+        # Settings button
+        self.settings_btn = tk.Button(
+            settings_frame,
+            text="⚙ SETTINGS",
+            command=self._open_settings,
+            **button_style
+        )
+        self.settings_btn.pack(side=tk.LEFT, padx=2)
+    
+    def _on_speed_preset_change(self, event=None):
+        """Handle speed preset dropdown change"""
+        preset = self.speed_preset_var.get()
+        if preset in self.speed_presets:
+            self.speed_var.set(self.speed_presets[preset])
+    
+    def _toggle_sound(self):
+        """Toggle sound on/off"""
+        self.sound_enabled = not self.sound_enabled
+        if self.sound_enabled:
+            self.sound_btn.config(text="🔊 SOUND")
+            self.play_sound('click')
+        else:
+            self.sound_btn.config(text="🔇 MUTED")
+    
+    def _on_difficulty_change(self, event=None):
+        """Handle difficulty change"""
+        self.difficulty = self.difficulty_var.get()
+        settings = self.difficulty_settings.get(self.difficulty, self.difficulty_settings['Normal'])
+        self.stats['boss_initial_hp'] = settings['boss_hp']
+        self.add_log(f"Difficulty changed to {self.difficulty}", "system")
+    
+    def _open_settings(self):
+        """Open settings dialog"""
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("⚙ SETTINGS")
+        settings_window.geometry("400x350")
+        settings_window.configure(bg=self.colors['background'])
+        settings_window.transient(self.root)
+        settings_window.grab_set()
+        
+        # Title
+        tk.Label(
+            settings_window,
+            text="GAME SETTINGS",
+            font=("Consolas", 14, "bold"),
+            fg=self.colors['text_primary'],
+            bg=self.colors['background']
+        ).pack(pady=10)
+        
+        # Settings frame
+        frame = tk.Frame(settings_window, bg=self.colors['panel_bg'], padx=20, pady=15)
+        frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        # Sound Volume
+        sound_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
+        sound_frame.pack(fill=tk.X, pady=8)
+        tk.Label(sound_frame, text="🔊 Sound Volume:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.volume_scale = tk.Scale(sound_frame, from_=0, to=100, orient=tk.HORIZONTAL, length=150,
+                                      bg=self.colors['panel_bg'], fg=self.colors['text_primary'],
+                                      troughcolor=self.colors['background'], highlightthickness=0)
+        self.volume_scale.set(self.sound_volume)
+        self.volume_scale.pack(side=tk.RIGHT)
+        
+        # Grid Size
+        grid_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
+        grid_frame.pack(fill=tk.X, pady=8)
+        tk.Label(grid_frame, text="📐 Cell Size:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.cell_size_scale = tk.Scale(grid_frame, from_=15, to=30, orient=tk.HORIZONTAL, length=150,
+                                         bg=self.colors['panel_bg'], fg=self.colors['text_primary'],
+                                         troughcolor=self.colors['background'], highlightthickness=0)
+        self.cell_size_scale.set(self.cell_size)
+        self.cell_size_scale.pack(side=tk.RIGHT)
+        
+        # Theme selector
+        theme_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
+        theme_frame.pack(fill=tk.X, pady=8)
+        tk.Label(theme_frame, text="🎨 Color Theme:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.theme_var = tk.StringVar(value='Thermal Green')
+        theme_combo = ttk.Combobox(theme_frame, textvariable=self.theme_var, 
+                                   values=['Thermal Green', 'Infrared Red', 'Night Blue'],
+                                   width=15, state='readonly')
+        theme_combo.pack(side=tk.RIGHT)
+        
+        # Turn delay info
+        info_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
+        info_frame.pack(fill=tk.X, pady=8)
+        tk.Label(info_frame, text="⏱ Turn Delay:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        tk.Label(info_frame, text=f"{self.speed_var.get()}ms", font=("Consolas", 10, "bold"), fg=self.colors['text_warning'], bg=self.colors['panel_bg']).pack(side=tk.RIGHT)
+        
+        # Apply button
+        def apply_settings():
+            self.sound_volume = self.volume_scale.get()
+            new_cell_size = self.cell_size_scale.get()
+            if new_cell_size != self.cell_size:
+                self.cell_size = new_cell_size
+                self.add_log(f"Cell size changed to {new_cell_size}px", "system")
+            settings_window.destroy()
+        
+        tk.Button(
+            settings_window,
+            text="✓ APPLY",
+            command=apply_settings,
+            font=("Consolas", 11, "bold"),
+            bg=self.colors['panel_bg'],
+            fg=self.colors['text_primary'],
+            padx=30, pady=8
+        ).pack(pady=15)
     
     def _bind_keys(self):
         self.root.bind('<space>', lambda e: self._on_pause() if self.is_running else self._on_start())
@@ -593,6 +850,46 @@ class PredatorVisualizer:
         self.root.bind('<r>', lambda e: self._on_reset())
         self.root.bind('<R>', lambda e: self._on_reset())
         self.root.bind('<Escape>', lambda e: self.root.quit())
+        # Additional keybinds for speed control
+        self.root.bind('<1>', lambda e: self._set_speed_preset('Slow (0.5x)'))
+        self.root.bind('<2>', lambda e: self._set_speed_preset('Normal (1x)'))
+        self.root.bind('<3>', lambda e: self._set_speed_preset('Fast (2x)'))
+        self.root.bind('<4>', lambda e: self._set_speed_preset('Ultra (4x)'))
+        self.root.bind('<m>', lambda e: self._toggle_sound())
+        self.root.bind('<M>', lambda e: self._toggle_sound())
+    
+    def _set_speed_preset(self, preset):
+        """Set speed from keyboard shortcut"""
+        if preset in self.speed_presets:
+            self.speed_preset_var.set(preset)
+            self.speed_var.set(self.speed_presets[preset])
+    
+    def play_sound(self, sound_type):
+        """Play sound effect in background thread"""
+        if not self.sound_enabled:
+            return
+        
+        def _play():
+            try:
+                frequencies = {
+                    'combat': [(800, 50), (600, 50)],
+                    'hit': [(400, 30), (300, 30)],
+                    'kill': [(1000, 100), (1200, 100), (1500, 150)],
+                    'item': [(1200, 80), (1400, 80)],
+                    'victory': [(523, 150), (659, 150), (784, 150), (1047, 300)],
+                    'defeat': [(400, 200), (350, 200), (300, 200), (250, 400)],
+                    'click': [(1000, 30)],
+                    'boss_hit': [(200, 50), (150, 80)],
+                    'critical': [(1500, 30), (100, 50), (1500, 30)]
+                }
+                
+                if sound_type in frequencies:
+                    for freq, duration in frequencies[sound_type]:
+                        winsound.Beep(freq, duration)
+            except Exception:
+                pass  # Silently fail if sound not available
+        
+        threading.Thread(target=_play, daemon=True).start()
     
     def _start_pulse_animation(self):
         self.pulse_phase = (self.pulse_phase + 1) % 20
@@ -739,8 +1036,65 @@ class PredatorVisualizer:
     def update_alive_count(self, count):
         self.alive_count_label.config(text=f"Active Signatures: {count}")
     
+    def update_stats(self, damage_dealt=0, damage_taken=0, kills=0, items_collected=0):
+        """Update the real-time combat statistics dashboard"""
+        self.stats['damage_dealt'] = damage_dealt
+        self.stats['damage_taken'] = damage_taken
+        self.stats['kills'] = kills
+        self.stats['items_collected'] = items_collected
+        
+        self.dmg_dealt_label.config(text=str(int(damage_dealt)))
+        self.dmg_taken_label.config(text=str(int(damage_taken)))
+        self.kills_label.config(text=str(kills))
+        self.items_label.config(text=str(items_collected))
+    
+    def update_boss_hp(self, current_hp, max_hp):
+        """Update boss HP progress bar"""
+        self.stats['boss_current_hp'] = current_hp
+        self.stats['boss_initial_hp'] = max_hp
+        
+        ratio = max(0, min(1, current_hp / max_hp)) if max_hp > 0 else 0
+        fill_width = int(260 * ratio)
+        
+        # Update progress bar
+        self.boss_hp_bar.delete("boss_hp")
+        if fill_width > 0:
+            # Color changes based on HP
+            if ratio > 0.5:
+                color = self.colors['boss']
+            elif ratio > 0.25:
+                color = '#ff6600'
+            else:
+                color = '#ff0000'
+            
+            self.boss_hp_bar.create_rectangle(
+                0, 0, fill_width, 14,
+                fill=color,
+                tags="boss_hp"
+            )
+        
+        self.boss_hp_text.config(text=f"{int(current_hp)}/{int(max_hp)}")
+    
+    def log_combat(self, attacker, target, damage):
+        """Log combat with sound effect"""
+        self.log_event(f"{attacker} hits {target} for {damage} damage", "combat")
+        self.play_sound('hit')
+    
+    def log_kill(self, killer, victim):
+        """Log kill with sound effect"""
+        self.log_event(f"💀 {killer} killed {victim}!", "combat")
+        self.play_sound('kill')
+    
+    def log_item_pickup(self, agent, item_name):
+        """Log item pickup with sound effect"""
+        self.log_event(f"📦 {agent} picked up {item_name}", "item")
+        self.play_sound('item')
+
     def render_grid(self):
         if not self.grid_data:
+            return
+        
+        if self.outcome:
             return
         
         self.canvas.delete("cell")
@@ -1206,56 +1560,86 @@ class PredatorVisualizer:
     
     def show_outcome(self, result, reason):
         self.outcome = result
+        self.is_running = False
+        
+        # Play victory or defeat sound
+        if result == "win":
+            self.play_sound('victory')
+        elif result == "lose":
+            self.play_sound('defeat')
         
         width = self.config.grid_width * self.cell_size
         height = self.config.grid_height * self.cell_size
         
+        self.canvas.delete("overlay")
+        
         self.canvas.create_rectangle(
             0, 0, width, height,
             fill='#000000',
-            stipple='gray50',
+            tags="overlay"
+        )
+        
+        bar_height = 200
+        bar_y1 = (height // 2) - (bar_height // 2)
+        bar_y2 = (height // 2) + (bar_height // 2)
+        
+        self.canvas.create_rectangle(
+            -5, bar_y1 - 5, width + 5, bar_y2 + 5,
+            fill='#1a1a1a',
+            outline='#444444',
+            width=4,
+            tags="overlay"
+        )
+        
+        self.canvas.create_rectangle(
+            0, bar_y1, width, bar_y2,
+            fill='#0d0d0d',
+            outline='#333333',
+            width=2,
             tags="overlay"
         )
         
         if result == "win":
-            result_text = "◆ VICTORY ◆"
-            color = self.colors['dek']
-            tag = "victory"
+            status_text = "DEK ALIVE"
+            result_text = "YOU WIN!"
+            status_color = '#00ff00'
         elif result == "lose":
-            result_text = "✖ DEFEAT ✖"
-            color = self.colors['text_danger']
-            tag = "defeat"
+            status_text = "DEK DEAD"
+            result_text = "YOU LOSE!"
+            status_color = '#ff3333'
         else:
-            result_text = "◉ TIMEOUT ◉"
-            color = self.colors['text_warning']
-            tag = "system"
+            status_text = "TIME UP"
+            result_text = "TIMEOUT"
+            status_color = '#ffaa00'
         
         self.canvas.create_text(
-            width // 2, height // 2 - 25,
+            width // 2, height // 2 - 50,
+            text=status_text,
+            font=("Consolas", 52, "bold"),
+            fill='#ffffff',
+            tags="overlay"
+        )
+        
+        self.canvas.create_text(
+            width // 2, height // 2 + 25,
             text=result_text,
-            font=("Consolas", 28, "bold"),
-            fill=color,
-            tags="overlay"
-        )
-        
-        reason_text = reason.upper().replace("_", " ")
-        self.canvas.create_text(
-            width // 2, height // 2 + 15,
-            text=reason_text,
-            font=("Consolas", 12),
-            fill=self.colors['text_secondary'],
+            font=("Consolas", 38, "bold"),
+            fill=status_color,
             tags="overlay"
         )
         
         self.canvas.create_text(
-            width // 2, height // 2 + 45,
+            width // 2, height // 2 + 75,
             text="Press R to restart",
-            font=("Consolas", 10),
-            fill=self.colors['text_secondary'],
+            font=("Consolas", 14),
+            fill='#666666',
             tags="overlay"
         )
         
-        self.log_event(f"SIMULATION ENDED: {result_text}", tag)
+        self.canvas.tag_raise("overlay")
+        self.canvas.update()
+        
+        self.log_event(f"GAME OVER: {status_text} - {result_text}", "system")
     
     def _on_start(self):
         if not self.is_running:
