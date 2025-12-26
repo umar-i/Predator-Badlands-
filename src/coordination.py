@@ -767,9 +767,17 @@ class CoordinationProtocol:
             return False
         
         sync_bonus = len(action.sync_with) * 5
-        base_damage = random.randint(20, 35) + sync_bonus
+        base_damage = random.randint(35, 55) + sync_bonus
         
         target.take_damage(base_damage)
+        
+        # Track damage stats for Dek
+        if hasattr(agent, 'total_damage_dealt'):
+            agent.total_damage_dealt += base_damage
+        
+        # Track kills
+        if not target.is_alive and hasattr(agent, 'kill_count'):
+            agent.kill_count += 1
         
         if hasattr(agent, 'gain_honour'):
             agent.gain_honour(3)
@@ -784,8 +792,16 @@ class CoordinationProtocol:
         if distance > 1.5:
             return False
         
-        damage = random.randint(15, 30)
+        damage = random.randint(35, 55)
         target.take_damage(damage)
+        
+        # Track damage stats for Dek
+        if hasattr(agent, 'total_damage_dealt'):
+            agent.total_damage_dealt += damage
+        
+        # Track kills
+        if not target.is_alive and hasattr(agent, 'kill_count'):
+            agent.kill_count += 1
         
         if hasattr(agent, 'gain_honour') and not target.is_alive:
             agent.gain_honour(5)

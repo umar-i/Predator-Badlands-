@@ -4,8 +4,6 @@ Data Collection Module for Predator: Badlands
 This module handles data persistence, CSV export, and data loading for experiments.
 Supports saving simulation results, loading historical data, and managing experiment data.
 
-Author: Predator Badlands Team
-Phase: 10 - Experiments & Data Collection
 """
 
 import csv

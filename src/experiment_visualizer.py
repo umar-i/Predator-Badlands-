@@ -5,10 +5,6 @@ This module provides matplotlib-based visualization for experiment results.
 Generates publication-ready graphs for survival curves, honour progression,
 win rates, resource usage, and more.
 
-Author: Predator Badlands Team
-Phase: 10 - Experiments & Data Collection
-
-Requirements: matplotlib (install with: pip install matplotlib)
 """
 
 import os

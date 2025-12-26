@@ -426,21 +426,27 @@ class SimulationEngine:
         self.outcome = None
         self.reason = ""
         
-        self.dek = self.Dek(12, 12)
-        self.thia = self.Thia(13, 12)
-        father = self.PredatorFather("Elder Kaail", 6, 6)
-        brother = self.PredatorBrother("Cetanu", 18, 12)
+        # All agents positioned in top-center visible area (y between 3-15)
+        self.dek = self.Dek(8, 8)
+        self.thia = self.Thia(9, 8)
+        father = self.PredatorFather("Elder Kaail", 5, 5)
+        brother = self.PredatorBrother("Cetanu", 20, 6)
         
         wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
         wildlife = []
-        positions = [(8, 8), (20, 8), (8, 18), (20, 18), (14, 16)]
+        # Place one weak wildlife close to Dek for easy early kill
+        positions = [(10, 8), (12, 6), (6, 10), (22, 10), (15, 8)]
         for i in range(min(wildlife_count, len(positions))):
             px, py = positions[i]
             w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
+            # First wildlife is weaker for easy early kill
+            if i == 0:
+                w.max_health = 40
+                w.health = 40
             wildlife.append(w)
         
         boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
-        self.boss = self.BossAdversary("Ultimate Adversary", 22, 22)
+        self.boss = self.BossAdversary("Ultimate Adversary", 30, 8)
         self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
         self.boss.health = self.boss.max_health
         
@@ -522,21 +528,27 @@ class SimulationEngine:
         self.outcome = None
         self.reason = ""
         
-        self.dek = self.Dek(12, 12)
-        self.thia = self.Thia(13, 12)
-        father = self.PredatorFather("Elder Kaail", 6, 6)
-        brother = self.PredatorBrother("Cetanu", 18, 12)
+        # All agents positioned in top-center visible area (y between 3-15)
+        self.dek = self.Dek(8, 8)
+        self.thia = self.Thia(9, 8)
+        father = self.PredatorFather("Elder Kaail", 5, 5)
+        brother = self.PredatorBrother("Cetanu", 20, 6)
         
         wildlife_count = self.config.get("difficulty", "wildlife_count", 3)
         wildlife = []
-        positions = [(8, 8), (20, 8), (8, 18), (20, 18), (14, 16)]
+        # Place one weak wildlife close to Dek for easy early kill
+        positions = [(10, 8), (12, 6), (6, 10), (22, 10), (15, 8)]
         for i in range(min(wildlife_count, len(positions))):
             px, py = positions[i]
             w = self.WildlifeAgent(f"Beast_{i+1}", "predator", px, py)
+            # First wildlife is weaker for easy early kill
+            if i == 0:
+                w.max_health = 40
+                w.health = 40
             wildlife.append(w)
         
         boss_hp_mult = self.config.get("difficulty", "boss_health_multiplier", 1.0)
-        self.boss = self.BossAdversary("Ultimate Adversary", 22, 22)
+        self.boss = self.BossAdversary("Ultimate Adversary", 30, 8)
         self.boss.max_health = int(self.boss.max_health * boss_hp_mult)
         self.boss.health = self.boss.max_health
         
@@ -752,6 +764,13 @@ class SimulationEngine:
         if not self.visualizer:
             return
         
+        # Track wildlife health totals
+        wildlife_health = 0
+        wildlife_max = 0
+        wildlife_count = 0
+        wildlife_alive = False
+        wildlife_x, wildlife_y = 0, 0
+        
         for agent in self.agents:
             agent_class = agent.__class__.__name__
             key_map = {
@@ -771,6 +790,23 @@ class SimulationEngine:
                     agent.y,
                     agent.is_alive
                 )
+            elif agent_class == 'WildlifeAgent':
+                wildlife_max += agent.max_health
+                if agent.is_alive:
+                    wildlife_health += agent.health
+                    wildlife_count += 1
+                    wildlife_alive = True
+                    wildlife_x, wildlife_y = agent.x, agent.y
+        
+        # Always update wildlife status (even if all dead)
+        self.visualizer.update_agent_status(
+            'wildlife',
+            wildlife_health,
+            wildlife_max if wildlife_max > 0 else 200,
+            wildlife_x,
+            wildlife_y,
+            wildlife_alive
+        )
     
     def _try_pickup(self, agent):
         cell = self.grid.get_cell(agent.x, agent.y)

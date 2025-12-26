@@ -161,12 +161,15 @@ class BossAdversary(Agent):
             return []
         
         enemies = []
-        scan_radius = 8 if self.is_enraged else 5
+        # Much larger scan radius - Boss can see whole battlefield
+        scan_radius = 20 if self.is_enraged else 15
         nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, scan_radius)
         
         for cell in nearby_cells:
             if cell.occupant and cell.occupant != self:
-                enemies.append(cell.occupant)
+                # Only target Dek and Thia (allies)
+                if hasattr(cell.occupant, 'is_exiled') or hasattr(cell.occupant, 'battery_level'):
+                    enemies.append(cell.occupant)
         
         return enemies
     
@@ -205,7 +208,7 @@ class BossAdversary(Agent):
         
         for cell in affected_cells:
             if cell.occupant and cell.occupant != self:
-                damage = random.randint(25, 40) if self.phase == 1 else random.randint(35, 55)
+                damage = random.randint(15, 25) if self.phase == 1 else random.randint(25, 40)
                 cell.occupant.take_damage(damage)
     
     def energy_blast_attack(self):
@@ -229,9 +232,9 @@ class BossAdversary(Agent):
         
         if targets_in_range:
             target = random.choice(targets_in_range)
-            damage = random.randint(30, 45) if self.phase == 1 else random.randint(40, 60)
+            damage = random.randint(18, 30) if self.phase == 1 else random.randint(28, 45)
             if self.is_enraged:
-                damage = int(damage * 1.5)
+                damage = int(damage * 1.3)
             target.take_damage(damage)
             self.last_attacker = target
         else:
@@ -243,7 +246,11 @@ class BossAdversary(Agent):
         best_distance = float('inf')
         
         for x, y in self.get_valid_moves():
-            distance = self.distance_to_position(x, y)
+            # Calculate distance from NEW position to enemy
+            if self.grid:
+                distance = self.grid.calculate_distance(x, y, enemy.x, enemy.y)
+            else:
+                distance = abs(x - enemy.x) + abs(y - enemy.y)
             if distance < best_distance:
                 best_distance = distance
                 best_move = (x, y)
@@ -274,7 +281,13 @@ class BossAdversary(Agent):
         if action == "rest":
             self.restore_stamina(15)
         elif action == "patrol":
-            self.patrol_behavior()
+            # Instead of patrolling, actively hunt for enemies
+            enemies = self.detect_enemies()
+            if enemies:
+                nearest = min(enemies, key=lambda e: self.distance_to(e))
+                self.move_towards_enemy(nearest)
+            else:
+                self.patrol_behavior()
         elif action == "regenerate":
             self.regenerate_health()
         elif action == "special_attack":

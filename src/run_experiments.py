@@ -6,22 +6,7 @@ This script runs comprehensive experiments for data collection and analysis.
 Executes 20+ simulations per configuration, collects metrics, generates CSV data,
 and creates matplotlib visualizations for the report.
 
-Author: Predator Badlands Team
-Phase: 10 - Experiments & Data Collection
 
-Usage:
-    python run_experiments.py                    # Run all experiments
-    python run_experiments.py --quick            # Quick test (5 runs per config)
-    python run_experiments.py --config normal    # Run specific config
-    python run_experiments.py --configs easy,hard  # Run multiple configs
-    python run_experiments.py --runs 30          # Custom number of runs
-    python run_experiments.py --no-plots         # Skip plot generation
-
-Output:
-    - CSV files with simulation results, agent metrics, honour progression
-    - PNG plots with visualizations
-    - JSON file with complete experiment data
-    - Summary statistics printed to console
 """
 
 import sys

@@ -4,8 +4,6 @@ Experiment Runner Module for Predator: Badlands
 This module provides automated simulation running for experiments.
 Runs multiple simulations per configuration, collects metrics, and manages results.
 
-Author: Predator Badlands Team
-Phase: 10 - Experiments & Data Collection
 """
 
 import sys

@@ -9,8 +9,6 @@ Output:
 - Plots: win_rates, survival, honour, combat_stats, resource_efficiency
 - JSON: Complete experiment data backup
 
-Author: Predator Badlands Team
-Phase: 10 - Experiments & Data Collection
 """
 
 import sys

@@ -52,13 +52,19 @@ class PredatorAgent(Agent):
         if not self.grid:
             return None
         
-        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, 3)
+        nearby_cells = self.grid.get_cells_in_radius(self.x, self.y, 8)
         prey_targets = []
         
         for cell in nearby_cells:
             if cell.occupant and cell.occupant != self:
-                if hasattr(cell.occupant, 'is_prey') and cell.occupant.is_prey:
-                    prey_targets.append(cell.occupant)
+                occupant = cell.occupant
+                # Include wildlife, boss, and any aggressive enemies
+                if hasattr(occupant, 'is_prey') and occupant.is_prey:
+                    prey_targets.append(occupant)
+                elif hasattr(occupant, 'phase'):  # Boss
+                    prey_targets.append(occupant)
+                elif hasattr(occupant, 'aggression_level') and occupant.aggression_level > 0:
+                    prey_targets.append(occupant)
         
         return prey_targets
     
@@ -121,9 +127,14 @@ class PredatorAgent(Agent):
     
     def attack_target(self, target):
         if self.distance_to(target) == 1:
-            damage = random.randint(15, 25)
+            damage = random.randint(35, 55)
             target.take_damage(damage)
+            # Track damage for stats
+            if hasattr(self, 'total_damage_dealt'):
+                self.total_damage_dealt += damage
             if not target.is_alive:
+                if hasattr(self, 'kill_count'):
+                    self.kill_count += 1
                 self.gain_honour(5)
                 self.add_trophy({'type': 'kill', 'target': target.name, 'value': 3})
 
@@ -131,7 +142,7 @@ class PredatorAgent(Agent):
 class Dek(PredatorAgent):
     
     def __init__(self, x=0, y=0):
-        super().__init__("Dek", x, y, max_health=120, max_stamina=100)
+        super().__init__("Dek", x, y, max_health=180, max_stamina=150)
         self.is_exiled = True
         self.carrying_thia = False
         self.thia_partner = None
@@ -233,9 +244,9 @@ class Dek(PredatorAgent):
         if not self.consume_stamina(15):
             return ActionResult(ActionType.ATTACK, False, 0, "Insufficient stamina for attack")
         
-        base_damage = random.randint(20, 35)
+        base_damage = random.randint(35, 55)
         if self.stealth_active:
-            base_damage = int(base_damage * 1.5)
+            base_damage = int(base_damage * 2.0)
             self.deactivate_stealth()
         
         target.take_damage(base_damage)
@@ -429,21 +440,47 @@ class Dek(PredatorAgent):
         if self.stamina < 20:
             return "rest"
         
-        if self.quest_progress < 10:
+        # Check for nearby items first
+        if self.grid:
+            for x, y in self.get_adjacent_positions():
+                cell = self.grid.get_cell(x, y)
+                if cell.items and not cell.is_occupied:
+                    return "collect_item"
+        
+        # Then check for enemies to hunt
+        prey = self.hunt_nearby_prey()
+        if prey:
+            return "hunt"
+        
+        if self.quest_progress < 3:
             return "explore"
         
-        return super().decide_action()
+        return "patrol"
     
     def update(self):
         action = self.decide_action()
         
         if action == "rest":
             self.restore_stamina(8)
+        elif action == "collect_item":
+            self.move_to_item()
+        elif action == "hunt":
+            self.hunt_behavior()
         elif action == "explore":
             self.exploration_movement()
             self.quest_progress += 1
         else:
-            super().update()
+            self.patrol_movement()
+    
+    def move_to_item(self):
+        """Move to adjacent cell with item"""
+        if not self.grid:
+            return
+        for x, y in self.get_adjacent_positions():
+            cell = self.grid.get_cell(x, y)
+            if cell.items and not cell.is_occupied:
+                self.move_to(x, y)
+                return
     
     def exploration_movement(self):
         unexplored_moves = []

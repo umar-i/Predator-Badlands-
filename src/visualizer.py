@@ -133,7 +133,7 @@ class PredatorVisualizer:
     
     def __init__(self, config):
         self.config = config
-        self.cell_size = 26
+        self.cell_size = 20
         self.colors = self.THERMAL_COLORS.copy()
         
         self.root = tk.Tk()
@@ -278,13 +278,13 @@ class PredatorVisualizer:
         lb_frame = tk.LabelFrame(
             parent,
             text=" BEST RUNS ",
-            font=("Consolas", 9, "bold"),
+            font=("Consolas", 8, "bold"),
             fg='#ffd700',
             bg=self.colors['panel_bg'],
-            padx=8,
-            pady=5
+            padx=5,
+            pady=2
         )
-        lb_frame.pack(fill=tk.X, pady=(0, 8))
+        lb_frame.pack(fill=tk.X, pady=(0, 4))
         
         self.leaderboard_labels = []
         for i in range(3):
@@ -309,10 +309,10 @@ class PredatorVisualizer:
             padx=5,
             pady=5
         )
-        minimap_frame.pack(fill=tk.X, pady=(0, 8))
+        minimap_frame.pack(fill=tk.X, pady=(0, 4))
         
-        self.minimap_size = 120
-        self.minimap_cell = 4
+        self.minimap_size = 100
+        self.minimap_cell = 3
         
         self.minimap = tk.Canvas(
             minimap_frame,
@@ -438,10 +438,10 @@ class PredatorVisualizer:
             font=("Consolas", 9, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
-            padx=10,
-            pady=8
+            padx=8,
+            pady=4
         )
-        status_frame.pack(fill=tk.X, pady=(0, 8))
+        status_frame.pack(fill=tk.X, pady=(0, 4))
         
         top_row = tk.Frame(status_frame, bg=self.colors['panel_bg'])
         top_row.pack(fill=tk.X)
@@ -505,10 +505,10 @@ class PredatorVisualizer:
             font=("Consolas", 9, "bold"),
             fg=self.colors['text_warning'],
             bg=self.colors['panel_bg'],
-            padx=8,
-            pady=5
+            padx=5,
+            pady=3
         )
-        stats_frame.pack(fill=tk.X, pady=(0, 8))
+        stats_frame.pack(fill=tk.X, pady=(0, 4))
         
         # Damage dealt row
         dmg_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
@@ -562,13 +562,13 @@ class PredatorVisualizer:
         agents_frame = tk.LabelFrame(
             parent,
             text=" THERMAL SIGNATURES ",
-            font=("Consolas", 9, "bold"),
+            font=("Consolas", 8, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
-            padx=8,
-            pady=5
+            padx=5,
+            pady=2
         )
-        agents_frame.pack(fill=tk.X, pady=(0, 8))
+        agents_frame.pack(fill=tk.X, pady=(0, 3))
         
         self.agent_widgets = {}
         
@@ -577,52 +577,53 @@ class PredatorVisualizer:
             ('thia', 'THIA', self.colors['thia']),
             ('father', 'FATHER', self.colors['father']),
             ('brother', 'BROTHER', self.colors['brother']),
+            ('wildlife', 'WILDLIFE', self.colors['wildlife']),
             ('boss', 'BOSS', self.colors['boss'])
         ]
         
         for agent_key, agent_name, color in agent_types:
             row = tk.Frame(agents_frame, bg=self.colors['panel_bg'])
-            row.pack(fill=tk.X, pady=2)
+            row.pack(fill=tk.X, pady=0)
             
-            indicator = tk.Canvas(row, width=12, height=12, bg=self.colors['panel_bg'], highlightthickness=0)
+            indicator = tk.Canvas(row, width=10, height=10, bg=self.colors['panel_bg'], highlightthickness=0)
             indicator.pack(side=tk.LEFT)
-            indicator.create_oval(2, 2, 10, 10, fill=color, outline='white', tags="indicator")
+            indicator.create_oval(1, 1, 9, 9, fill=color, outline='white', tags="indicator")
             
             name_label = tk.Label(
                 row,
                 text=agent_name,
-                font=("Consolas", 9, "bold"),
+                font=("Consolas", 8, "bold"),
                 fg=color,
                 bg=self.colors['panel_bg'],
                 width=8,
                 anchor=tk.W
             )
-            name_label.pack(side=tk.LEFT, padx=(5, 0))
+            name_label.pack(side=tk.LEFT, padx=(3, 0))
             
             health_bar = tk.Canvas(
                 row,
-                width=120,
-                height=10,
+                width=100,
+                height=8,
                 bg=self.colors['health_bg'],
                 highlightthickness=1,
                 highlightbackground=self.colors['text_secondary']
             )
-            health_bar.pack(side=tk.LEFT, padx=(5, 5))
+            health_bar.pack(side=tk.LEFT, padx=(3, 3))
             
             health_label = tk.Label(
                 row,
                 text="100/100",
-                font=("Consolas", 8),
+                font=("Consolas", 7),
                 fg=self.colors['text_secondary'],
                 bg=self.colors['panel_bg'],
-                width=8
+                width=7
             )
             health_label.pack(side=tk.LEFT)
             
             pos_label = tk.Label(
                 row,
                 text="(--,--)",
-                font=("Consolas", 7),
+                font=("Consolas", 6),
                 fg=self.colors['text_secondary'],
                 bg=self.colors['panel_bg']
             )
@@ -638,11 +639,11 @@ class PredatorVisualizer:
         self.alive_count_label = tk.Label(
             agents_frame,
             text="Active Signatures: 0",
-            font=("Consolas", 8),
+            font=("Consolas", 7),
             fg=self.colors['text_secondary'],
             bg=self.colors['panel_bg']
         )
-        self.alive_count_label.pack(pady=(5, 0))
+        self.alive_count_label.pack(pady=(2, 0))
     
     def _build_log_panel(self, parent):
         log_frame = tk.LabelFrame(
@@ -1693,7 +1694,7 @@ class PredatorVisualizer:
         
         if is_alive and max_health > 0:
             ratio = max(0, min(1, health / max_health))
-            width = int(120 * ratio)
+            width = int(100 * ratio)
             
             if ratio > 0.6:
                 color = self.colors['health_high']
@@ -1703,7 +1704,7 @@ class PredatorVisualizer:
                 color = self.colors['health_low']
             
             if width > 0:
-                widgets['health_bar'].create_rectangle(0, 0, width, 10, fill=color, outline="", tags="bar")
+                widgets['health_bar'].create_rectangle(0, 0, width, 8, fill=color, outline="", tags="bar")
             
             widgets['health_label'].config(text=f"{int(health)}/{int(max_health)}")
             widgets['pos_label'].config(text=f"({x},{y})")

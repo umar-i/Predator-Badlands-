@@ -4,7 +4,7 @@ import os
 
 DEFAULT_CONFIG = {
     "grid": {
-        "width": 30,
+        "width": 40,
         "height": 30
     },
     "difficulty": {
