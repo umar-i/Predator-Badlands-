@@ -1,8 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-import winsound
 import threading
+import sys
+
+# winsound is Windows-only, make it optional
+if sys.platform == 'win32':
+    import winsound
+else:
+    winsound = None
 
 
 class PredatorVisualizer:
@@ -65,7 +71,7 @@ class PredatorVisualizer:
             'outline': 'dek_outline',
             'inner': 'dek_inner',
             'icon': 'predator_mask',
-            'size': 11,
+            'size': 14,
             'label': 'DEK',
             'priority': 1
         },
@@ -75,7 +81,7 @@ class PredatorVisualizer:
             'outline': 'thia_outline',
             'inner': 'thia_inner',
             'icon': 'android',
-            'size': 9,
+            'size': 12,
             'label': 'THIA',
             'priority': 2
         },
@@ -85,7 +91,7 @@ class PredatorVisualizer:
             'outline': 'father_outline',
             'inner': 'father_inner',
             'icon': 'elder_predator',
-            'size': 10,
+            'size': 13,
             'label': 'FATHER',
             'priority': 3
         },
@@ -95,7 +101,7 @@ class PredatorVisualizer:
             'outline': 'brother_outline',
             'inner': 'brother_inner',
             'icon': 'young_predator',
-            'size': 9,
+            'size': 12,
             'label': 'BROTHER',
             'priority': 4
         },
@@ -105,7 +111,7 @@ class PredatorVisualizer:
             'outline': 'clan_outline',
             'inner': 'father_inner',
             'icon': 'clan_warrior',
-            'size': 8,
+            'size': 11,
             'label': 'CLAN',
             'priority': 5
         },
@@ -115,7 +121,7 @@ class PredatorVisualizer:
             'outline': 'wildlife_outline',
             'inner': 'wildlife_inner',
             'icon': 'beast',
-            'size': 9,
+            'size': 12,
             'label': 'BEAST',
             'priority': 6
         },
@@ -125,7 +131,7 @@ class PredatorVisualizer:
             'outline': 'boss_outline',
             'inner': 'boss_inner',
             'icon': 'skull_boss',
-            'size': 12,
+            'size': 15,
             'label': 'BOSS',
             'priority': 0
         }
@@ -133,14 +139,27 @@ class PredatorVisualizer:
     
     def __init__(self, config):
         self.config = config
-        self.cell_size = 20
+        self.cell_size = 30
         self.colors = self.THERMAL_COLORS.copy()
         
         self.root = tk.Tk()
-        self.root.title("PREDATOR: BADLANDS")
+        self.root.title("PREDATOR: BADLANDS - Multi-Agent AI Simulation")
         self.root.configure(bg=self.colors['background'])
-        self.root.state('zoomed')
+        
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        self.root.geometry(f"{screen_width}x{screen_height}+0+0")
+        
+        try:
+            self.root.state('zoomed')
+        except tk.TclError:
+            try:
+                self.root.attributes('-zoomed', True)
+            except:
+                self.root.attributes('-fullscreen', False)
+        
         self.root.resizable(True, True)
+        self.root.minsize(1200, 800)
         
         self.color_themes = {
             'Thermal': self.THERMAL_COLORS.copy(),
@@ -149,7 +168,8 @@ class PredatorVisualizer:
         }
         self.current_theme = 'Thermal'
         
-        self.leaderboard = []
+        # Load existing leaderboard
+        self.leaderboard = self._load_leaderboard()
         self.game_start_time = None
         
         self.grid_data = None
@@ -224,105 +244,114 @@ class PredatorVisualizer:
     
     def _build_ui(self):
         self.main_frame = tk.Frame(self.root, bg=self.colors['background'])
-        self.main_frame.pack(padx=10, pady=10)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
         
         self._build_header()
+        self._build_controls()  # Build controls FIRST so they pack at bottom
         self._build_content()
-        self._build_controls()
     
     def _build_header(self):
         header = tk.Frame(self.main_frame, bg=self.colors['background'])
-        header.pack(fill=tk.X, pady=(0, 12))
+        header.pack(fill=tk.X, pady=(0, 15))
         
-        title_frame = tk.Frame(header, bg=self.colors['panel_bg'], padx=20, pady=8)
+        title_frame = tk.Frame(header, bg=self.colors['panel_bg'], padx=30, pady=12)
         title_frame.pack()
         
         tk.Label(
             title_frame,
             text="P R E D A T O R",
-            font=("Consolas", 24, "bold"),
+            font=("Consolas", 32, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg']
         ).pack()
         
         tk.Label(
             title_frame,
-            text="━━━━━━ BADLANDS ━━━━━━",
-            font=("Consolas", 12),
+            text="━━━━━━━━ BADLANDS ━━━━━━━━",
+            font=("Consolas", 14),
             fg=self.colors['text_secondary'],
             bg=self.colors['panel_bg']
         ).pack()
     
     def _build_content(self):
         content = tk.Frame(self.main_frame, bg=self.colors['background'])
-        content.pack(fill=tk.BOTH)
+        content.pack(fill=tk.BOTH, expand=True)
         
         left_panel = tk.Frame(content, bg=self.colors['background'])
-        left_panel.pack(side=tk.LEFT, padx=(0, 15))
+        left_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
         
         self._build_grid_canvas(left_panel)
-        self._build_legend(left_panel)
+        self._build_legend(left_panel)  
+        self._build_log_panel(left_panel)
         
-        right_panel = tk.Frame(content, bg=self.colors['background'], width=320)
-        right_panel.pack(side=tk.RIGHT, fill=tk.Y)
+        # Right panel - compact to fit everything
+        right_panel = tk.Frame(content, bg=self.colors['background'], width=350)
+        right_panel.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 5))
         right_panel.pack_propagate(False)
         
+        # Build all panels with reduced padding
         self._build_minimap(right_panel)
         self._build_status_panel(right_panel)
         self._build_stats_panel(right_panel)
         self._build_agents_panel(right_panel)
         self._build_leaderboard_panel(right_panel)
-        self._build_log_panel(right_panel)
     
     def _build_leaderboard_panel(self, parent):
         lb_frame = tk.LabelFrame(
             parent,
-            text=" BEST RUNS ",
-            font=("Consolas", 8, "bold"),
+            text=" 🏆 BEST RUNS ",
+            font=("Consolas", 10, "bold"),
             fg='#ffd700',
             bg=self.colors['panel_bg'],
-            padx=5,
-            pady=2
+            padx=8,
+            pady=4
         )
-        lb_frame.pack(fill=tk.X, pady=(0, 4))
+        lb_frame.pack(fill=tk.X, pady=(0, 5))
         
         self.leaderboard_labels = []
         for i in range(3):
             row = tk.Frame(lb_frame, bg=self.colors['panel_bg'])
-            row.pack(fill=tk.X, pady=1)
+            row.pack(fill=tk.X, pady=2)
             
-            rank_label = tk.Label(row, text=f"#{i+1}", font=("Consolas", 8, "bold"), fg='#ffd700', bg=self.colors['panel_bg'], width=3)
+            rank_colors = ['#ffd700', '#c0c0c0', '#cd7f32']  # Gold, Silver, Bronze
+            rank_label = tk.Label(row, text=f"#{i+1}", font=("Consolas", 10, "bold"), 
+                                fg=rank_colors[i], bg=self.colors['panel_bg'], width=3)
             rank_label.pack(side=tk.LEFT)
             
-            info_label = tk.Label(row, text="---", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg'])
-            info_label.pack(side=tk.LEFT, padx=5)
+            info_label = tk.Label(row, text="---", font=("Consolas", 9), 
+                                fg=self.colors['text_secondary'], bg=self.colors['panel_bg'],
+                                anchor=tk.W)
+            info_label.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
             
             self.leaderboard_labels.append(info_label)
+        
+        # Display existing leaderboard entries
+        self._display_leaderboard()
     
     def _build_minimap(self, parent):
         minimap_frame = tk.LabelFrame(
             parent,
-            text=" TACTICAL MAP ",
-            font=("Consolas", 9, "bold"),
+            text=" 🗺 TACTICAL MAP ",
+            font=("Consolas", 10, "bold"),
             fg=self.colors['text_warning'],
             bg=self.colors['panel_bg'],
-            padx=5,
-            pady=5
+            padx=8,
+            pady=6
         )
-        minimap_frame.pack(fill=tk.X, pady=(0, 4))
+        minimap_frame.pack(fill=tk.X, pady=(0, 5))
         
-        self.minimap_size = 100
-        self.minimap_cell = 3
+        self.minimap_size = 140
+        self.minimap_cell = 4
         
         self.minimap = tk.Canvas(
             minimap_frame,
             width=self.minimap_size,
             height=self.minimap_size,
             bg='#0a0a0a',
-            highlightthickness=1,
+            highlightthickness=2,
             highlightbackground=self.colors['panel_border']
         )
-        self.minimap.pack()
+        self.minimap.pack(expand=True)
     
     def _build_grid_canvas(self, parent):
         canvas_frame = tk.Frame(
@@ -368,19 +397,19 @@ class PredatorVisualizer:
     def _build_legend(self, parent):
         legend_frame = tk.LabelFrame(
             parent,
-            text=" AGENT SIGNATURES ",
-            font=("Consolas", 9, "bold"),
+            text=" 📡 AGENT SIGNATURES ",
+            font=("Consolas", 12, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
-            padx=8,
-            pady=5
+            padx=15,
+            pady=10
         )
-        legend_frame.pack(fill=tk.X, pady=(8, 0))
+        legend_frame.pack(fill=tk.X, pady=(10, 0))
         
         legend_canvas = tk.Canvas(
             legend_frame,
             width=self.config.grid_width * self.cell_size - 20,
-            height=40,
+            height=60,
             bg=self.colors['panel_bg'],
             highlightthickness=0
         )
@@ -396,52 +425,55 @@ class PredatorVisualizer:
             ('ITEM', 'item', 'item')
         ]
         
-        x_offset = 8
+        total_width = self.config.grid_width * self.cell_size - 40
+        item_width = total_width // len(items)
+        x_offset = item_width // 2
+        
         for name, color_key, icon_type in items:
             color = self.colors.get(color_key, '#ffffff')
-            cx, cy = x_offset + 10, 14
+            cx, cy = x_offset, 20
             
             if icon_type == 'predator':
-                legend_canvas.create_oval(cx-7, cy-6, cx+7, cy+5, fill='#003300', outline=color, width=1)
-                legend_canvas.create_oval(cx-4, cy-2, cx-1, cy+1, fill='#ff0000', outline='')
-                legend_canvas.create_oval(cx+1, cy-2, cx+4, cy+1, fill='#ff0000', outline='')
+                legend_canvas.create_oval(cx-10, cy-8, cx+10, cy+8, fill='#003300', outline=color, width=2)
+                legend_canvas.create_oval(cx-5, cy-3, cx-1, cy+1, fill='#ff0000', outline='')
+                legend_canvas.create_oval(cx+1, cy-3, cx+5, cy+1, fill='#ff0000', outline='')
             elif icon_type == 'android':
-                legend_canvas.create_rectangle(cx-6, cy-7, cx+6, cy+4, fill='#003333', outline=color, width=1)
-                legend_canvas.create_rectangle(cx-4, cy-4, cx-1, cy-1, fill=color, outline='')
-                legend_canvas.create_rectangle(cx+1, cy-4, cx+4, cy-1, fill=color, outline='')
+                legend_canvas.create_rectangle(cx-8, cy-9, cx+8, cy+6, fill='#003333', outline=color, width=2)
+                legend_canvas.create_rectangle(cx-5, cy-5, cx-1, cy-1, fill=color, outline='')
+                legend_canvas.create_rectangle(cx+1, cy-5, cx+5, cy-1, fill=color, outline='')
             elif icon_type == 'elder':
-                legend_canvas.create_oval(cx-7, cy-5, cx+7, cy+5, fill='#332200', outline=color, width=1)
-                legend_canvas.create_oval(cx-4, cy-2, cx-1, cy+1, fill='#ffff00', outline='')
-                legend_canvas.create_oval(cx+1, cy-2, cx+4, cy+1, fill='#ffff00', outline='')
+                legend_canvas.create_oval(cx-10, cy-7, cx+10, cy+7, fill='#332200', outline=color, width=2)
+                legend_canvas.create_oval(cx-5, cy-3, cx-1, cy+1, fill='#ffff00', outline='')
+                legend_canvas.create_oval(cx+1, cy-3, cx+5, cy+1, fill='#ffff00', outline='')
             elif icon_type == 'young':
-                legend_canvas.create_oval(cx-6, cy-5, cx+6, cy+5, fill='#331100', outline=color, width=1)
-                legend_canvas.create_oval(cx-4, cy-2, cx-1, cy+1, fill='#ff6600', outline='')
-                legend_canvas.create_oval(cx+1, cy-2, cx+4, cy+1, fill='#ff6600', outline='')
+                legend_canvas.create_oval(cx-9, cy-7, cx+9, cy+7, fill='#331100', outline=color, width=2)
+                legend_canvas.create_oval(cx-5, cy-3, cx-1, cy+1, fill='#ff6600', outline='')
+                legend_canvas.create_oval(cx+1, cy-3, cx+5, cy+1, fill='#ff6600', outline='')
             elif icon_type == 'beast':
-                legend_canvas.create_oval(cx-7, cy-4, cx+7, cy+6, fill='#330000', outline=color, width=1)
-                legend_canvas.create_polygon(cx-5, cy-2, cx-3, cy-6, cx-1, cy-2, fill=color, outline='')
-                legend_canvas.create_polygon(cx+5, cy-2, cx+3, cy-6, cx+1, cy-2, fill=color, outline='')
+                legend_canvas.create_oval(cx-10, cy-6, cx+10, cy+8, fill='#330000', outline=color, width=2)
+                legend_canvas.create_polygon(cx-6, cy-2, cx-4, cy-7, cx-2, cy-2, fill=color, outline='')
+                legend_canvas.create_polygon(cx+6, cy-2, cx+4, cy-7, cx+2, cy-2, fill=color, outline='')
             elif icon_type == 'skull':
-                legend_canvas.create_oval(cx-8, cy-7, cx+8, cy+5, fill='#330033', outline=color, width=1)
-                legend_canvas.create_oval(cx-5, cy-3, cx-1, cy+1, fill='#000000', outline=color)
-                legend_canvas.create_oval(cx+1, cy-3, cx+5, cy+1, fill='#000000', outline=color)
+                legend_canvas.create_oval(cx-11, cy-9, cx+11, cy+7, fill='#330033', outline=color, width=2)
+                legend_canvas.create_oval(cx-6, cy-4, cx-1, cy+1, fill='#000000', outline=color)
+                legend_canvas.create_oval(cx+1, cy-4, cx+6, cy+1, fill='#000000', outline=color)
             elif icon_type == 'item':
-                legend_canvas.create_rectangle(cx-5, cy-5, cx+5, cy+5, fill=color, outline='white', width=1)
+                legend_canvas.create_rectangle(cx-7, cy-7, cx+7, cy+7, fill=color, outline='white', width=2)
             
-            legend_canvas.create_text(cx, 32, text=name, font=("Consolas", 7, "bold"), fill=self.colors['text_secondary'])
-            x_offset += 54
+            legend_canvas.create_text(cx, 48, text=name, font=("Consolas", 11, "bold"), fill=self.colors['text_secondary'])
+            x_offset += item_width
     
     def _build_status_panel(self, parent):
         status_frame = tk.LabelFrame(
             parent,
-            text=" MISSION STATUS ",
-            font=("Consolas", 9, "bold"),
+            text=" 📊 MISSION STATUS ",
+            font=("Consolas", 10, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
             padx=8,
             pady=4
         )
-        status_frame.pack(fill=tk.X, pady=(0, 4))
+        status_frame.pack(fill=tk.X, pady=(0, 5))
         
         top_row = tk.Frame(status_frame, bg=self.colors['panel_bg'])
         top_row.pack(fill=tk.X)
@@ -449,7 +481,7 @@ class PredatorVisualizer:
         self.turn_label = tk.Label(
             top_row,
             text="TURN: 000",
-            font=("Consolas", 14, "bold"),
+            font=("Consolas", 18, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg']
         )
@@ -458,7 +490,7 @@ class PredatorVisualizer:
         self.weather_label = tk.Label(
             top_row,
             text="☀ Calm",
-            font=("Consolas", 10),
+            font=("Consolas", 12),
             fg=self.colors['text_secondary'],
             bg=self.colors['panel_bg']
         )
@@ -498,77 +530,71 @@ class PredatorVisualizer:
         self.honour_label.pack(side=tk.LEFT)
     
     def _build_stats_panel(self, parent):
-        """Build the real-time combat statistics dashboard"""
         stats_frame = tk.LabelFrame(
             parent,
-            text=" COMBAT STATISTICS ",
-            font=("Consolas", 9, "bold"),
+            text=" ⚔ COMBAT STATISTICS ",
+            font=("Consolas", 10, "bold"),
             fg=self.colors['text_warning'],
             bg=self.colors['panel_bg'],
-            padx=5,
-            pady=3
+            padx=8,
+            pady=4
         )
-        stats_frame.pack(fill=tk.X, pady=(0, 4))
+        stats_frame.pack(fill=tk.X, pady=(0, 5))
         
-        # Damage dealt row
         dmg_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
-        dmg_row.pack(fill=tk.X, pady=1)
-        tk.Label(dmg_row, text="⚔ DMG DEALT:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.dmg_dealt_label = tk.Label(dmg_row, text="0", font=("Consolas", 9, "bold"), fg='#00ff00', bg=self.colors['panel_bg'])
+        dmg_row.pack(fill=tk.X, pady=2)
+        tk.Label(dmg_row, text="⚔ DMG DEALT:", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.dmg_dealt_label = tk.Label(dmg_row, text="0", font=("Consolas", 11, "bold"), fg='#00ff00', bg=self.colors['panel_bg'])
         self.dmg_dealt_label.pack(side=tk.RIGHT)
         
-        # Damage taken row
         taken_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
-        taken_row.pack(fill=tk.X, pady=1)
-        tk.Label(taken_row, text="💔 DMG TAKEN:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.dmg_taken_label = tk.Label(taken_row, text="0", font=("Consolas", 9, "bold"), fg='#ff4444', bg=self.colors['panel_bg'])
+        taken_row.pack(fill=tk.X, pady=2)
+        tk.Label(taken_row, text="💔 DMG TAKEN:", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.dmg_taken_label = tk.Label(taken_row, text="0", font=("Consolas", 11, "bold"), fg='#ff4444', bg=self.colors['panel_bg'])
         self.dmg_taken_label.pack(side=tk.RIGHT)
         
-        # Kills row
         kills_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
-        kills_row.pack(fill=tk.X, pady=1)
-        tk.Label(kills_row, text="💀 KILLS:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.kills_label = tk.Label(kills_row, text="0", font=("Consolas", 9, "bold"), fg='#ff00ff', bg=self.colors['panel_bg'])
+        kills_row.pack(fill=tk.X, pady=2)
+        tk.Label(kills_row, text="💀 KILLS:", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.kills_label = tk.Label(kills_row, text="0", font=("Consolas", 11, "bold"), fg='#ff00ff', bg=self.colors['panel_bg'])
         self.kills_label.pack(side=tk.RIGHT)
         
-        # Items collected row
         items_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
-        items_row.pack(fill=tk.X, pady=1)
-        tk.Label(items_row, text="📦 ITEMS:", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.items_label = tk.Label(items_row, text="0", font=("Consolas", 9, "bold"), fg='#ffff00', bg=self.colors['panel_bg'])
+        items_row.pack(fill=tk.X, pady=2)
+        tk.Label(items_row, text="📦 ITEMS:", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.items_label = tk.Label(items_row, text="0", font=("Consolas", 11, "bold"), fg='#ffff00', bg=self.colors['panel_bg'])
         self.items_label.pack(side=tk.RIGHT)
         
-        # Boss HP progress bar
         tk.Frame(stats_frame, height=1, bg=self.colors['text_secondary']).pack(fill=tk.X, pady=4)
         
         boss_label_row = tk.Frame(stats_frame, bg=self.colors['panel_bg'])
         boss_label_row.pack(fill=tk.X)
-        tk.Label(boss_label_row, text="BOSS HEALTH:", font=("Consolas", 8, "bold"), fg=self.colors['boss'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.boss_hp_text = tk.Label(boss_label_row, text="150/150", font=("Consolas", 8), fg=self.colors['text_secondary'], bg=self.colors['panel_bg'])
+        tk.Label(boss_label_row, text="BOSS HP:", font=("Consolas", 10, "bold"), fg=self.colors['boss'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.boss_hp_text = tk.Label(boss_label_row, text="150/150", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg'])
         self.boss_hp_text.pack(side=tk.RIGHT)
         
         self.boss_hp_bar = tk.Canvas(
             stats_frame,
-            width=260,
+            width=280,
             height=14,
             bg=self.colors['health_bg'],
-            highlightthickness=1,
+            highlightthickness=2,
             highlightbackground=self.colors['boss']
         )
-        self.boss_hp_bar.pack(fill=tk.X, pady=(2, 0))
-        self.boss_hp_bar.create_rectangle(0, 0, 260, 14, fill=self.colors['boss'], tags="boss_hp")
+        self.boss_hp_bar.pack(fill=tk.X, pady=(4, 0))
+        self.boss_hp_bar.create_rectangle(0, 0, 300, 18, fill=self.colors['boss'], tags="boss_hp")
     
     def _build_agents_panel(self, parent):
         agents_frame = tk.LabelFrame(
             parent,
-            text=" THERMAL SIGNATURES ",
-            font=("Consolas", 8, "bold"),
+            text=" 🔥 THERMAL SIGNATURES ",
+            font=("Consolas", 10, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
-            padx=5,
-            pady=2
+            padx=8,
+            pady=4
         )
-        agents_frame.pack(fill=tk.X, pady=(0, 3))
+        agents_frame.pack(fill=tk.X, pady=(0, 5))
         
         self.agent_widgets = {}
         
@@ -583,27 +609,27 @@ class PredatorVisualizer:
         
         for agent_key, agent_name, color in agent_types:
             row = tk.Frame(agents_frame, bg=self.colors['panel_bg'])
-            row.pack(fill=tk.X, pady=0)
+            row.pack(fill=tk.X, pady=1)
             
             indicator = tk.Canvas(row, width=10, height=10, bg=self.colors['panel_bg'], highlightthickness=0)
-            indicator.pack(side=tk.LEFT)
-            indicator.create_oval(1, 1, 9, 9, fill=color, outline='white', tags="indicator")
+            indicator.pack(side=tk.LEFT, padx=(0, 3))
+            indicator.create_oval(1, 1, 9, 9, fill=color, outline='white', width=1, tags="indicator")
             
             name_label = tk.Label(
                 row,
                 text=agent_name,
-                font=("Consolas", 8, "bold"),
+                font=("Consolas", 9, "bold"),
                 fg=color,
                 bg=self.colors['panel_bg'],
                 width=8,
                 anchor=tk.W
             )
-            name_label.pack(side=tk.LEFT, padx=(3, 0))
+            name_label.pack(side=tk.LEFT)
             
             health_bar = tk.Canvas(
                 row,
-                width=100,
-                height=8,
+                width=90,
+                height=10,
                 bg=self.colors['health_bg'],
                 highlightthickness=1,
                 highlightbackground=self.colors['text_secondary']
@@ -613,33 +639,25 @@ class PredatorVisualizer:
             health_label = tk.Label(
                 row,
                 text="100/100",
-                font=("Consolas", 7),
+                font=("Consolas", 8),
                 fg=self.colors['text_secondary'],
                 bg=self.colors['panel_bg'],
-                width=7
+                width=8
             )
             health_label.pack(side=tk.LEFT)
             
-            pos_label = tk.Label(
-                row,
-                text="(--,--)",
-                font=("Consolas", 6),
-                fg=self.colors['text_secondary'],
-                bg=self.colors['panel_bg']
-            )
-            pos_label.pack(side=tk.RIGHT)
+            # Remove position label to save space
             
             self.agent_widgets[agent_key] = {
                 'indicator': indicator,
                 'health_bar': health_bar,
-                'health_label': health_label,
-                'pos_label': pos_label
+                'health_label': health_label
             }
         
         self.alive_count_label = tk.Label(
             agents_frame,
-            text="Active Signatures: 0",
-            font=("Consolas", 7),
+            text="Active: 0",
+            font=("Consolas", 8),
             fg=self.colors['text_secondary'],
             bg=self.colors['panel_bg']
         )
@@ -648,29 +666,30 @@ class PredatorVisualizer:
     def _build_log_panel(self, parent):
         log_frame = tk.LabelFrame(
             parent,
-            text=" COMBAT LOG ",
-            font=("Consolas", 9, "bold"),
+            text=" 📜 COMBAT LOG ",
+            font=("Consolas", 11, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['panel_bg'],
-            padx=5,
-            pady=5
+            padx=10,
+            pady=8
         )
-        log_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+        log_frame.pack(fill=tk.X, pady=(10, 0))
         
         self.log_text = tk.Text(
             log_frame,
-            width=34,
-            height=10,
-            font=("Consolas", 8),
+            width=50,
+            height=6,
+            font=("Consolas", 10),
             fg=self.colors['text_secondary'],
             bg='#030303',
             wrap=tk.WORD,
             state=tk.DISABLED,
-            highlightthickness=0,
+            highlightthickness=1,
+            highlightbackground=self.colors['panel_border'],
             padx=5,
             pady=5
         )
-        self.log_text.pack(fill=tk.BOTH, expand=True)
+        self.log_text.pack(fill=tk.X, expand=False)
         
         self.log_text.tag_configure("combat", foreground=self.colors['text_danger'])
         self.log_text.tag_configure("honour", foreground=self.colors['text_primary'])
@@ -681,80 +700,88 @@ class PredatorVisualizer:
         self.log_text.tag_configure("defeat", foreground='#ff0000')
     
     def _build_controls(self):
-        control_frame = tk.Frame(self.main_frame, bg=self.colors['background'])
-        control_frame.pack(fill=tk.X, pady=(8, 0))
+        # Control bar fixed at bottom - always visible
+        control_frame = tk.Frame(self.main_frame, bg=self.colors['panel_bg'], padx=10, pady=8)
+        control_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
         button_style = {
             'font': ("Consolas", 10, "bold"),
-            'bg': self.colors['panel_bg'],
+            'bg': '#0d1f0d',
             'fg': self.colors['text_primary'],
-            'activebackground': self.colors['panel_border'],
-            'activeforeground': self.colors['text_primary'],
-            'relief': tk.FLAT,
+            'activebackground': '#1a4a1a',
+            'activeforeground': '#ffffff',
+            'relief': tk.RAISED,
             'padx': 12,
-            'pady': 4,
+            'pady': 6,
             'cursor': 'hand2',
-            'borderwidth': 1
+            'borderwidth': 0,
+            'highlightthickness': 2,
+            'highlightbackground': self.colors['panel_border'],
+            'highlightcolor': '#00ff00'
         }
         
+        # Left side - Main controls
+        left_frame = tk.Frame(control_frame, bg=self.colors['panel_bg'])
+        left_frame.pack(side=tk.LEFT)
+        
         self.start_btn = tk.Button(
-            control_frame,
+            left_frame,
             text="▶ START",
             command=self._on_start,
             **button_style
         )
-        self.start_btn.pack(side=tk.LEFT, padx=2)
+        self.start_btn.pack(side=tk.LEFT, padx=3)
         
         self.pause_btn = tk.Button(
-            control_frame,
+            left_frame,
             text="⏸ PAUSE",
             command=self._on_pause,
             state=tk.DISABLED,
             **button_style
         )
-        self.pause_btn.pack(side=tk.LEFT, padx=2)
+        self.pause_btn.pack(side=tk.LEFT, padx=3)
         
         self.step_btn = tk.Button(
-            control_frame,
+            left_frame,
             text="⏭ STEP",
             command=self._on_step,
             **button_style
         )
-        self.step_btn.pack(side=tk.LEFT, padx=2)
+        self.step_btn.pack(side=tk.LEFT, padx=3)
         
         self.reset_btn = tk.Button(
-            control_frame,
+            left_frame,
             text="↺ RESET",
             command=self._on_reset,
             **button_style
         )
-        self.reset_btn.pack(side=tk.LEFT, padx=2)
+        self.reset_btn.pack(side=tk.LEFT, padx=3)
         
         # Separator
-        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        tk.Frame(control_frame, width=2, bg='#00aa00').pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=3)
         
-        # Enhanced Speed Controls
-        speed_frame = tk.Frame(control_frame, bg=self.colors['background'])
+        # Center - Speed controls
+        speed_frame = tk.Frame(control_frame, bg=self.colors['panel_bg'])
         speed_frame.pack(side=tk.LEFT)
         
         tk.Label(
             speed_frame,
             text="SPEED:",
-            font=("Consolas", 9),
-            fg=self.colors['text_secondary'],
-            bg=self.colors['background']
-        ).pack(side=tk.LEFT)
+            font=("Consolas", 10, "bold"),
+            fg=self.colors['text_warning'],
+            bg=self.colors['panel_bg']
+        ).pack(side=tk.LEFT, padx=(0, 4))
         
-        # Speed preset dropdown
-        self.speed_preset_var = tk.StringVar(value='Normal (1x)')
+        self.speed_preset_var = tk.StringVar(value='Slow (0.5x)')
         self.speed_dropdown = ttk.Combobox(
             speed_frame,
             textvariable=self.speed_preset_var,
             values=list(self.speed_presets.keys()),
-            width=12,
-            state='readonly'
+            width=10,
+            state='readonly',
+            font=("Consolas", 9)
         )
-        self.speed_dropdown.pack(side=tk.LEFT, padx=5)
+        self.speed_dropdown.pack(side=tk.LEFT, padx=3)
         self.speed_dropdown.bind('<<ComboboxSelected>>', self._on_speed_preset_change)
         
         self.speed_var = tk.IntVar(value=self.config.turn_delay)
@@ -768,17 +795,18 @@ class PredatorVisualizer:
             showvalue=False,
             bg=self.colors['panel_bg'],
             fg=self.colors['text_primary'],
-            troughcolor=self.colors['background'],
-            highlightthickness=0
+            troughcolor='#0a150a',
+            highlightthickness=0,
+            sliderrelief=tk.FLAT
         )
-        self.speed_scale.pack(side=tk.LEFT, padx=2)
+        self.speed_scale.pack(side=tk.LEFT, padx=3)
         
         self.speed_label = tk.Label(
             speed_frame,
-            text="200ms",
-            font=("Consolas", 8),
-            fg=self.colors['text_secondary'],
-            bg=self.colors['background'],
+            text="400ms",
+            font=("Consolas", 10, "bold"),
+            fg='#00ff00',
+            bg=self.colors['panel_bg'],
             width=6
         )
         self.speed_label.pack(side=tk.LEFT)
@@ -786,78 +814,78 @@ class PredatorVisualizer:
         self.speed_var.trace_add('write', lambda *args: self.speed_label.config(text=f"{self.speed_var.get()}ms"))
         
         # Separator
-        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
+        tk.Frame(control_frame, width=2, bg='#00aa00').pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=3)
         
-        # Settings section
-        settings_frame = tk.Frame(control_frame, bg=self.colors['background'])
-        settings_frame.pack(side=tk.LEFT)
+        # Sound & Difficulty
+        mid_frame = tk.Frame(control_frame, bg=self.colors['panel_bg'])
+        mid_frame.pack(side=tk.LEFT)
         
-        # Sound toggle button
         self.sound_btn = tk.Button(
-            settings_frame,
-            text="🔊 SOUND",
+            mid_frame,
+            text="🔊 MUTED",
             command=self._toggle_sound,
             **button_style
         )
-        self.sound_btn.pack(side=tk.LEFT, padx=2)
+        self.sound_btn.pack(side=tk.LEFT, padx=3)
         
-        # Difficulty selector
         tk.Label(
-            settings_frame,
+            mid_frame,
             text="DIFF:",
-            font=("Consolas", 9),
-            fg=self.colors['text_secondary'],
-            bg=self.colors['background']
-        ).pack(side=tk.LEFT, padx=(8, 2))
+            font=("Consolas", 10, "bold"),
+            fg=self.colors['text_warning'],
+            bg=self.colors['panel_bg']
+        ).pack(side=tk.LEFT, padx=(8, 4))
         
         self.difficulty_var = tk.StringVar(value='Normal')
         self.difficulty_dropdown = ttk.Combobox(
-            settings_frame,
+            mid_frame,
             textvariable=self.difficulty_var,
             values=['Easy', 'Normal', 'Hard'],
             width=8,
-            state='readonly'
+            state='readonly',
+            font=("Consolas", 9)
         )
-        self.difficulty_dropdown.pack(side=tk.LEFT, padx=2)
+        self.difficulty_dropdown.pack(side=tk.LEFT, padx=3)
         self.difficulty_dropdown.bind('<<ComboboxSelected>>', self._on_difficulty_change)
         
-        # Settings button
+        # Separator
+        tk.Frame(control_frame, width=2, bg='#00aa00').pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=3)
+        
+        # Right side - Utility buttons
+        right_frame = tk.Frame(control_frame, bg=self.colors['panel_bg'])
+        right_frame.pack(side=tk.LEFT)
+        
         self.settings_btn = tk.Button(
-            settings_frame,
+            right_frame,
             text="⚙ SETTINGS",
             command=self._open_settings,
             **button_style
         )
-        self.settings_btn.pack(side=tk.LEFT, padx=2)
-        
-        tk.Frame(control_frame, width=2, bg=self.colors['panel_border']).pack(side=tk.LEFT, fill=tk.Y, padx=8)
-        
-        extra_frame = tk.Frame(control_frame, bg=self.colors['background'])
-        extra_frame.pack(side=tk.LEFT)
+        self.settings_btn.pack(side=tk.LEFT, padx=3)
         
         self.save_btn = tk.Button(
-            extra_frame,
+            right_frame,
             text="💾 SAVE",
             command=self._save_game,
             **button_style
         )
-        self.save_btn.pack(side=tk.LEFT, padx=2)
+        self.save_btn.pack(side=tk.LEFT, padx=3)
         
         self.load_btn = tk.Button(
-            extra_frame,
+            right_frame,
             text="📂 LOAD",
             command=self._load_game,
             **button_style
         )
-        self.load_btn.pack(side=tk.LEFT, padx=2)
+        self.load_btn.pack(side=tk.LEFT, padx=3)
         
         self.tutorial_btn = tk.Button(
-            extra_frame,
+            right_frame,
             text="❓ HELP",
             command=self._start_tutorial,
             **button_style
         )
-        self.tutorial_btn.pack(side=tk.LEFT, padx=2)
+        self.tutorial_btn.pack(side=tk.LEFT, padx=3)
     
     def _on_speed_preset_change(self, event=None):
         """Handle speed preset dropdown change"""
@@ -882,70 +910,89 @@ class PredatorVisualizer:
         self.add_log(f"Difficulty changed to {self.difficulty}", "system")
     
     def _open_settings(self):
-        """Open settings dialog"""
+        """Open settings dialog - properly centered"""
         settings_window = tk.Toplevel(self.root)
-        settings_window.title("⚙ SETTINGS")
-        settings_window.geometry("400x350")
+        settings_window.title("⚙ GAME SETTINGS")
         settings_window.configure(bg=self.colors['background'])
         settings_window.transient(self.root)
+        
+        # Center the window on screen - bigger size
+        window_width = 500
+        window_height = 500
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+        settings_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        settings_window.resizable(False, False)
+        
         settings_window.grab_set()
+        settings_window.focus_set()
         
         # Title
         tk.Label(
             settings_window,
-            text="GAME SETTINGS",
-            font=("Consolas", 14, "bold"),
+            text="⚙ GAME SETTINGS",
+            font=("Consolas", 18, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['background']
-        ).pack(pady=10)
+        ).pack(pady=20)
         
-        frame = tk.Frame(settings_window, bg=self.colors['panel_bg'], padx=20, pady=15)
-        frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        frame = tk.Frame(settings_window, bg=self.colors['panel_bg'], padx=30, pady=25)
+        frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=10)
         
+        # Sound Volume
         sound_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        sound_frame.pack(fill=tk.X, pady=8)
-        tk.Label(sound_frame, text="🔊 Sound Volume:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.volume_scale = tk.Scale(sound_frame, from_=0, to=100, orient=tk.HORIZONTAL, length=150,
+        sound_frame.pack(fill=tk.X, pady=12)
+        tk.Label(sound_frame, text="🔊 Sound Volume:", font=("Consolas", 12), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.volume_scale = tk.Scale(sound_frame, from_=0, to=100, orient=tk.HORIZONTAL, length=200,
                                       bg=self.colors['panel_bg'], fg=self.colors['text_primary'],
-                                      troughcolor=self.colors['background'], highlightthickness=0)
+                                      troughcolor=self.colors['background'], highlightthickness=0,
+                                      font=("Consolas", 10))
         self.volume_scale.set(self.sound_volume)
         self.volume_scale.pack(side=tk.RIGHT)
         
+        # Cell Size
         grid_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        grid_frame.pack(fill=tk.X, pady=8)
-        tk.Label(grid_frame, text="📐 Cell Size:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        self.cell_size_scale = tk.Scale(grid_frame, from_=20, to=35, orient=tk.HORIZONTAL, length=150,
+        grid_frame.pack(fill=tk.X, pady=12)
+        tk.Label(grid_frame, text="📐 Cell Size:", font=("Consolas", 12), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        self.cell_size_scale = tk.Scale(grid_frame, from_=24, to=40, orient=tk.HORIZONTAL, length=200,
                                          bg=self.colors['panel_bg'], fg=self.colors['text_primary'],
-                                         troughcolor=self.colors['background'], highlightthickness=0)
+                                         troughcolor=self.colors['background'], highlightthickness=0,
+                                         font=("Consolas", 10))
         self.cell_size_scale.set(self.cell_size)
         self.cell_size_scale.pack(side=tk.RIGHT)
         
+        # Color Theme
         theme_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        theme_frame.pack(fill=tk.X, pady=8)
-        tk.Label(theme_frame, text="🎨 Color Theme:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        theme_frame.pack(fill=tk.X, pady=12)
+        tk.Label(theme_frame, text="🎨 Color Theme:", font=("Consolas", 12), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
         theme_var = tk.StringVar(value=self.current_theme)
         theme_combo = ttk.Combobox(theme_frame, textvariable=theme_var, 
                                    values=['Thermal', 'Night', 'Infrared'],
-                                   width=12, state='readonly')
+                                   width=18, state='readonly', font=("Consolas", 11))
         theme_combo.pack(side=tk.RIGHT)
         
+        # Difficulty
         diff_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        diff_frame.pack(fill=tk.X, pady=8)
-        tk.Label(diff_frame, text="⚔ Difficulty:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        diff_frame.pack(fill=tk.X, pady=12)
+        tk.Label(diff_frame, text="⚔ Difficulty:", font=("Consolas", 12), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
         diff_var = tk.StringVar(value=self.difficulty)
         diff_combo = ttk.Combobox(diff_frame, textvariable=diff_var, 
                                    values=['Easy', 'Normal', 'Hard'],
-                                   width=12, state='readonly')
+                                   width=18, state='readonly', font=("Consolas", 11))
         diff_combo.pack(side=tk.RIGHT)
         
+        # Turn Delay info
         info_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        info_frame.pack(fill=tk.X, pady=8)
-        tk.Label(info_frame, text="⏱ Turn Delay:", font=("Consolas", 10), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
-        tk.Label(info_frame, text=f"{self.speed_var.get()}ms", font=("Consolas", 10, "bold"), fg=self.colors['text_warning'], bg=self.colors['panel_bg']).pack(side=tk.RIGHT)
+        info_frame.pack(fill=tk.X, pady=12)
+        tk.Label(info_frame, text="⏱ Turn Delay:", font=("Consolas", 12), fg=self.colors['text_primary'], bg=self.colors['panel_bg']).pack(side=tk.LEFT)
+        tk.Label(info_frame, text=f"{self.speed_var.get()}ms", font=("Consolas", 12, "bold"), fg=self.colors['text_warning'], bg=self.colors['panel_bg']).pack(side=tk.RIGHT)
         
+        # Shortcuts hint
         shortcuts_frame = tk.Frame(frame, bg=self.colors['panel_bg'])
-        shortcuts_frame.pack(fill=tk.X, pady=8)
-        tk.Label(shortcuts_frame, text="Press F1 or H for keyboard shortcuts", font=("Consolas", 9), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack()
+        shortcuts_frame.pack(fill=tk.X, pady=12)
+        tk.Label(shortcuts_frame, text="💡 Press F1 or H for keyboard shortcuts", font=("Consolas", 10), fg=self.colors['text_secondary'], bg=self.colors['panel_bg']).pack()
         
         def apply_settings():
             self.sound_volume = self.volume_scale.get()
@@ -962,15 +1009,33 @@ class PredatorVisualizer:
             settings_window.destroy()
             self.show_achievement("SETTINGS APPLIED", "Your preferences have been saved")
         
+        # Buttons frame
+        btn_frame = tk.Frame(settings_window, bg=self.colors['background'])
+        btn_frame.pack(pady=20)
+        
         tk.Button(
-            settings_window,
+            btn_frame,
             text="✓ APPLY",
             command=apply_settings,
-            font=("Consolas", 11, "bold"),
-            bg=self.colors['panel_bg'],
+            font=("Consolas", 13, "bold"),
+            bg='#0d1f0d',
             fg=self.colors['text_primary'],
-            padx=30, pady=8
-        ).pack(pady=15)
+            activebackground='#1a4a1a',
+            padx=40, pady=12,
+            cursor='hand2'
+        ).pack(side=tk.LEFT, padx=15)
+        
+        tk.Button(
+            btn_frame,
+            text="✕ CANCEL",
+            command=settings_window.destroy,
+            font=("Consolas", 13, "bold"),
+            bg='#1f0d0d',
+            fg='#ff6666',
+            activebackground='#4a1a1a',
+            padx=40, pady=12,
+            cursor='hand2'
+        ).pack(side=tk.LEFT, padx=15)
     
     def _bind_keys(self):
         self.root.bind('<space>', lambda e: self._on_pause() if self.is_running else self._on_start())
@@ -994,25 +1059,35 @@ class PredatorVisualizer:
     def _show_keyboard_shortcuts(self):
         help_window = tk.Toplevel(self.root)
         help_window.title("KEYBOARD SHORTCUTS")
-        help_window.geometry("400x450")
         help_window.configure(bg=self.colors['background'])
         help_window.transient(self.root)
+        
+        # Center and size properly
+        window_width = 500
+        window_height = 550
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+        help_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        help_window.resizable(False, False)
+        
         help_window.grab_set()
         
         tk.Label(
             help_window,
-            text="KEYBOARD SHORTCUTS",
-            font=("Consolas", 16, "bold"),
+            text="⌨ KEYBOARD SHORTCUTS",
+            font=("Consolas", 18, "bold"),
             fg=self.colors['text_primary'],
             bg=self.colors['background']
-        ).pack(pady=15)
+        ).pack(pady=20)
         
-        frame = tk.Frame(help_window, bg=self.colors['panel_bg'], padx=20, pady=15)
-        frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        frame = tk.Frame(help_window, bg=self.colors['panel_bg'], padx=25, pady=20)
+        frame.pack(fill=tk.BOTH, expand=True, padx=25, pady=10)
         
         shortcuts = [
             ("SPACE", "Start / Pause simulation"),
-            ("RIGHT", "Step one turn"),
+            ("RIGHT →", "Step one turn forward"),
             ("R", "Reset simulation"),
             ("ESC", "Exit game"),
             ("1-4", "Speed presets (0.5x to 4x)"),
@@ -1025,36 +1100,38 @@ class PredatorVisualizer:
         
         for key, desc in shortcuts:
             row = tk.Frame(frame, bg=self.colors['panel_bg'])
-            row.pack(fill=tk.X, pady=3)
+            row.pack(fill=tk.X, pady=6)
             
             tk.Label(
                 row,
                 text=f"[{key}]",
-                font=("Consolas", 10, "bold"),
+                font=("Consolas", 12, "bold"),
                 fg='#ffd700',
                 bg=self.colors['panel_bg'],
-                width=10,
+                width=12,
                 anchor=tk.W
             ).pack(side=tk.LEFT)
             
             tk.Label(
                 row,
                 text=desc,
-                font=("Consolas", 10),
+                font=("Consolas", 11),
                 fg=self.colors['text_secondary'],
                 bg=self.colors['panel_bg'],
                 anchor=tk.W
-            ).pack(side=tk.LEFT, padx=10)
+            ).pack(side=tk.LEFT, padx=15)
         
         tk.Button(
             help_window,
-            text="CLOSE",
+            text="✓ GOT IT",
             command=help_window.destroy,
-            font=("Consolas", 10, "bold"),
-            bg=self.colors['panel_bg'],
+            font=("Consolas", 12, "bold"),
+            bg='#0d1f0d',
             fg=self.colors['text_primary'],
-            padx=30, pady=5
-        ).pack(pady=15)
+            activebackground='#1a4a1a',
+            padx=40, pady=10,
+            cursor='hand2'
+        ).pack(pady=20)
     
     def _cycle_theme(self):
         themes = list(self.color_themes.keys())
@@ -1089,7 +1166,8 @@ class PredatorVisualizer:
                 
                 if sound_type in frequencies:
                     for freq, duration in frequencies[sound_type]:
-                        winsound.Beep(freq, duration)
+                        if winsound:
+                            winsound.Beep(freq, duration)
             except Exception:
                 pass  # Silently fail if sound not available
         
@@ -1455,6 +1533,28 @@ class PredatorVisualizer:
                     tags="animation"
                 )
     
+    def _load_leaderboard(self):
+        """Load leaderboard from file at startup"""
+        import json
+        import os
+        lb_path = 'data/leaderboard.json'
+        try:
+            if os.path.exists(lb_path):
+                with open(lb_path, 'r') as f:
+                    return json.load(f)
+        except:
+            pass
+        return []
+    
+    def _display_leaderboard(self):
+        """Display current leaderboard entries"""
+        for i, label in enumerate(self.leaderboard_labels):
+            if i < len(self.leaderboard):
+                entry = self.leaderboard[i]
+                label.config(text=f"T{entry.get('turns', 0)} K{entry.get('kills', 0)} H{entry.get('honour', 0)}")
+            else:
+                label.config(text="---")
+    
     def _update_leaderboard(self):
         import json
         import os
@@ -1694,7 +1794,7 @@ class PredatorVisualizer:
         
         if is_alive and max_health > 0:
             ratio = max(0, min(1, health / max_health))
-            width = int(100 * ratio)
+            width = int(80 * ratio)
             
             if ratio > 0.6:
                 color = self.colors['health_high']
@@ -1707,18 +1807,16 @@ class PredatorVisualizer:
                 widgets['health_bar'].create_rectangle(0, 0, width, 8, fill=color, outline="", tags="bar")
             
             widgets['health_label'].config(text=f"{int(health)}/{int(max_health)}")
-            widgets['pos_label'].config(text=f"({x},{y})")
             widgets['indicator'].itemconfig("indicator", fill=self.colors.get(agent_key, '#888888'))
         else:
             widgets['health_label'].config(text="DEAD")
-            widgets['pos_label'].config(text="(--,--)")
             widgets['indicator'].itemconfig("indicator", fill='#333333')
     
     def update_agent_health(self, agent_type, current, maximum):
         self.update_agent_status(agent_type, current, maximum, 0, 0, current > 0)
     
     def update_alive_count(self, count):
-        self.alive_count_label.config(text=f"Active Signatures: {count}")
+        self.alive_count_label.config(text=f"Active: {count}")
     
     def update_stats(self, damage_dealt=0, damage_taken=0, kills=0, items_collected=0):
         old_kills = self.stats['kills']
@@ -2285,9 +2383,11 @@ class PredatorVisualizer:
         self.outcome = result
         self.is_running = False
         
+        # Update leaderboard on any game end
+        self._update_leaderboard()
+        
         if result == "win":
             self.play_sound('victory')
-            self._update_leaderboard()
         elif result == "lose":
             self.play_sound('defeat')
         
