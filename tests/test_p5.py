@@ -208,8 +208,9 @@ class TestBossActions(unittest.TestCase):
         boss.set_grid(grid)
         grid.place_agent(boss, 15, 15)
         
-        from predator import PredatorAgent
-        enemy = PredatorAgent("Enemy")
+        from predator import Dek
+        enemy = Dek(16, 15)  # Use Dek which has is_exiled attribute
+        enemy.set_grid(grid)
         grid.place_agent(enemy, 16, 15)
         
         action = boss.decide_action()

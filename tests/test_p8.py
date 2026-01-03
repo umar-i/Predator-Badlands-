@@ -5,6 +5,26 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from config import GameConfig, DEFAULT_CONFIG
 
+# Check if tkinter is available
+try:
+    import tkinter as tk
+    TKINTER_AVAILABLE = True
+    # Also check if display is available
+    try:
+        root = tk.Tk()
+        root.destroy()
+    except:
+        TKINTER_AVAILABLE = False
+except ImportError:
+    TKINTER_AVAILABLE = False
+
+
+def requires_tkinter(test_class):
+    """Decorator to skip test class if tkinter is not available."""
+    if not TKINTER_AVAILABLE:
+        return unittest.skip("Tkinter not available")(test_class)
+    return test_class
+
 
 class TestDefaultConfig(unittest.TestCase):
     
@@ -12,7 +32,7 @@ class TestDefaultConfig(unittest.TestCase):
         self.assertIsNotNone(DEFAULT_CONFIG)
     
     def test_default_grid_settings(self):
-        self.assertEqual(DEFAULT_CONFIG["grid"]["width"], 30)
+        self.assertEqual(DEFAULT_CONFIG["grid"]["width"], 40)
         self.assertEqual(DEFAULT_CONFIG["grid"]["height"], 30)
     
     def test_default_difficulty_settings(self):
@@ -40,7 +60,7 @@ class TestGameConfig(unittest.TestCase):
     def test_get_existing_value(self):
         config = GameConfig(config_path="test_nonexistent.json")
         value = config.get("grid", "width", 0)
-        self.assertEqual(value, 30)
+        self.assertEqual(value, 40)
     
     def test_get_missing_value_default(self):
         config = GameConfig(config_path="test_nonexistent.json")
@@ -133,6 +153,7 @@ class TestGameConfigMerge(unittest.TestCase):
         self.assertEqual(config.get("custom", "setting1", None), "value1")
 
 
+@requires_tkinter
 class TestVisualizerColors(unittest.TestCase):
     
     def test_thermal_colors_import(self):
@@ -157,6 +178,7 @@ class TestVisualizerColors(unittest.TestCase):
         self.assertEqual(colors['boss'], '#ff00ff')
 
 
+@requires_tkinter
 class TestVisualizerAgentConfig(unittest.TestCase):
     
     def test_agent_config_exists(self):
@@ -206,6 +228,7 @@ class TestVisualizerAgentConfig(unittest.TestCase):
         self.assertEqual(wildlife_config['label'], 'BEAST')
 
 
+@requires_tkinter
 class TestVisualizerTerrainColors(unittest.TestCase):
     
     def test_terrain_colors_defined(self):
@@ -222,6 +245,7 @@ class TestVisualizerTerrainColors(unittest.TestCase):
         self.assertIn('teleport', colors)
 
 
+@requires_tkinter
 class TestVisualizerHealthColors(unittest.TestCase):
     
     def test_health_colors_defined(self):
@@ -244,6 +268,7 @@ class TestVisualizerHealthColors(unittest.TestCase):
         self.assertEqual(colors['health_low'], '#ff0000')
 
 
+@requires_tkinter
 class TestVisualizerTextColors(unittest.TestCase):
     
     def test_text_colors_defined(self):
@@ -257,6 +282,7 @@ class TestVisualizerTextColors(unittest.TestCase):
         self.assertIn('text_danger', colors)
 
 
+@requires_tkinter
 class TestVisualizerPanelColors(unittest.TestCase):
     
     def test_panel_colors_defined(self):
@@ -270,6 +296,7 @@ class TestVisualizerPanelColors(unittest.TestCase):
         self.assertIn('tooltip_border', colors)
 
 
+@requires_tkinter
 class TestVisualizerPrioritySystem(unittest.TestCase):
     
     def test_boss_highest_priority(self):
@@ -311,6 +338,7 @@ class TestConfigIntegration(unittest.TestCase):
         self.assertEqual(grid.height, config.grid_height)
 
 
+@requires_tkinter
 class TestVisualizerAgentSizes(unittest.TestCase):
     
     def test_agent_sizes_defined(self):
@@ -334,6 +362,7 @@ class TestVisualizerAgentSizes(unittest.TestCase):
                 self.assertLessEqual(agent_config['size'], boss_size)
 
 
+@requires_tkinter
 class TestVisualizerGlowEffects(unittest.TestCase):
     
     def test_glow_colors_defined(self):

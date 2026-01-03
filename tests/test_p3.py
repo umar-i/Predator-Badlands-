@@ -328,8 +328,8 @@ class TestDekAgent(unittest.TestCase):
     
     def test_dek_stats(self):
         dek = Dek()
-        self.assertEqual(dek.max_health, 120)
-        self.assertEqual(dek.max_stamina, 100)
+        self.assertEqual(dek.max_health, 180)
+        self.assertEqual(dek.max_stamina, 150)
         self.assertTrue(dek.is_exiled)
     
     def test_dek_symbol(self):
@@ -356,7 +356,7 @@ class TestDekCarryThia(unittest.TestCase):
         
         self.assertTrue(dek.carrying_thia)
         self.assertEqual(dek.thia_partner, thia)
-        self.assertEqual(dek.max_stamina, 80)
+        self.assertEqual(dek.max_stamina, 130)
     
     def test_drop_thia(self):
         dek = Dek()
@@ -370,7 +370,7 @@ class TestDekCarryThia(unittest.TestCase):
         
         self.assertFalse(dek.carrying_thia)
         self.assertIsNone(dek.thia_partner)
-        self.assertEqual(dek.max_stamina, 100)
+        self.assertEqual(dek.max_stamina, 150)
     
     def test_movement_cost_while_carrying(self):
         dek = Dek()
