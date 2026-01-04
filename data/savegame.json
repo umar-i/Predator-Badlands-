@@ -1,0 +1,95 @@
+{
+  "turn": 23,
+  "stats": {
+    "damage_dealt": 0,
+    "damage_taken": 17,
+    "kills": 0,
+    "items_collected": 1,
+    "boss_current_hp": 115,
+    "boss_initial_hp": 150
+  },
+  "difficulty": "Normal",
+  "agents": [
+    {
+      "name": "Dek",
+      "type": "Dek",
+      "x": 32,
+      "y": 19,
+      "health": 163,
+      "max_health": 180,
+      "is_alive": true
+    },
+    {
+      "name": "Thia",
+      "type": "Thia",
+      "x": 10,
+      "y": 9,
+      "health": 30,
+      "max_health": 60,
+      "is_alive": true
+    },
+    {
+      "name": "Elder Kaail",
+      "type": "PredatorFather",
+      "x": 7,
+      "y": 4,
+      "health": 135,
+      "max_health": 180,
+      "is_alive": true
+    },
+    {
+      "name": "Cetanu",
+      "type": "PredatorBrother",
+      "x": 21,
+      "y": 2,
+      "health": 160,
+      "max_health": 160,
+      "is_alive": true
+    },
+    {
+      "name": "Ultimate Adversary",
+      "type": "BossAdversary",
+      "x": 30,
+      "y": 4,
+      "health": 115,
+      "max_health": 150,
+      "is_alive": true
+    },
+    {
+      "name": "Beast_1",
+      "type": "WildlifeAgent",
+      "x": 4,
+      "y": 5,
+      "health": 40,
+      "max_health": 40,
+      "is_alive": true
+    },
+    {
+      "name": "Beast_2",
+      "type": "WildlifeAgent",
+      "x": 7,
+      "y": 3,
+      "health": 20,
+      "max_health": 50,
+      "is_alive": true
+    },
+    {
+      "name": "Beast_3",
+      "type": "WildlifeAgent",
+      "x": 37,
+      "y": 1,
+      "health": 45,
+      "max_health": 50,
+      "is_alive": true
+    },
+    {
+      "name": "Beast_4",
+      "type": "WildlifeAgent",
+      "x": 18,
+      "y": 19,
+      "health": 50,
+      "max_health": 50,
+      "is_alive": true
+    }
+  ]
+}

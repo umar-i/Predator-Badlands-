@@ -1,48 +1,49 @@
 {
   "metadata": {
-    "total_steps": 200,
-    "total_events": 235,
-    "export_time": "2025-12-23T18:40:22.342562"
+    "total_steps": 37,
+    "total_events": 231,
+    "export_time": "2026-01-04T17:41:43.629561"
   },
   "statistics": {
-    "weather_change": 24,
-    "hazard": 208,
+    "weather_change": 5,
     "item_pickup": 2,
+    "hazard": 223,
     "simulation_outcome": 1
   },
   "agent_statistics": {
-    "Dek": {
-      "hazard": 42
-    },
     "Thia": {
-      "hazard": 14
+      "item_pickup": 1,
+      "hazard": 19
+    },
+    "Dek": {
+      "item_pickup": 1,
+      "hazard": 32
     },
     "Elder Kaail": {
-      "hazard": 42
+      "hazard": 32
     },
     "Cetanu": {
-      "hazard": 23
+      "hazard": 32
     },
     "Ultimate Adversary": {
-      "hazard": 42,
-      "item_pickup": 2
+      "hazard": 32
     },
     "Beast_1": {
-      "hazard": 10
+      "hazard": 20
     },
     "Beast_2": {
-      "hazard": 6
+      "hazard": 12
     },
     "Beast_3": {
-      "hazard": 17
+      "hazard": 20
     },
     "Beast_4": {
-      "hazard": 12
+      "hazard": 24
     }
   },
   "events": [
     {
-      "timestamp": 5,
+      "timestamp": 1,
       "type": "weather_change",
       "agent": "system",
       "position": null,
@@ -54,7 +55,1358 @@
       }
     },
     {
+      "timestamp": 2,
+      "type": "item_pickup",
+      "agent": "Thia",
+      "position": [
+        7,
+        7
+      ],
+      "details": {
+        "item": "energy",
+        "name": "Energy Pack",
+        "value": 37
+      }
+    },
+    {
+      "timestamp": 5,
+      "type": "item_pickup",
+      "agent": "Dek",
+      "position": [
+        3,
+        9
+      ],
+      "details": {
+        "item": "medkit",
+        "name": "Medkit",
+        "value": 27
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "weather_change",
+      "agent": "system",
+      "position": null,
+      "details": {
+        "state": "ElectricalStorm",
+        "move_multiplier": 1.2,
+        "global_damage": 1,
+        "visibility_penalty": 1
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        3,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        3,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        6,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        22,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        10,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        11,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        2,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 6,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        21,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        3,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        2,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        6,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        23,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        11
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        10,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        1,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 7,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        22,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        3,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        2,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        5,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        9,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        1,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 8,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        21,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
       "timestamp": 9,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        2,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        3,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        6,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        9,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        0,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 9,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        20,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "weather_change",
+      "agent": "system",
+      "position": null,
+      "details": {
+        "state": "ElectricalStorm",
+        "move_multiplier": 1.2,
+        "global_damage": 1,
+        "visibility_penalty": 1
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        3,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        5,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        10,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        8,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        39,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 10,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        21,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        3,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        4,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        11,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        7,
+        8
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        38,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 11,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        21,
+        7
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        2,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        3,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        23,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        12,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        6,
+        9
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        39,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 12,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        20,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        1,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        2,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        11,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        5,
+        10
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        38,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 13,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        21,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        3,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        23,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        11,
+        11
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        5,
+        11
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        37,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 14,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        20,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "weather_change",
+      "agent": "system",
+      "position": null,
+      "details": {
+        "state": "ElectricalStorm",
+        "move_multiplier": 1.2,
+        "global_damage": 1,
+        "visibility_penalty": 1
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        1
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        2,
+        4
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        10,
+        12
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        5,
+        12
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        38,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 15,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        19,
+        5
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        0
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        2
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        3,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        11
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        4,
+        11
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        37,
+        3
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 16,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        18,
+        6
+      ],
+      "details": {
+        "damage": 1,
+        "cause": "ElectricalStorm"
+      }
+    },
+    {
+      "timestamp": 17,
       "type": "weather_change",
       "agent": "system",
       "position": null,
@@ -66,12 +1418,12 @@
       }
     },
     {
-      "timestamp": 9,
+      "timestamp": 17,
       "type": "hazard",
       "agent": "Dek",
       "position": [
-        8,
-        11
+        1,
+        29
       ],
       "details": {
         "damage": 3,
@@ -79,12 +1431,12 @@
       }
     },
     {
-      "timestamp": 9,
+      "timestamp": 17,
       "type": "hazard",
       "agent": "Thia",
       "position": [
-        7,
-        10
+        0,
+        1
       ],
       "details": {
         "damage": 3,
@@ -92,401 +1444,11 @@
       }
     },
     {
-      "timestamp": 9,
+      "timestamp": 17,
       "type": "hazard",
       "agent": "Elder Kaail",
       "position": [
-        5,
-        5
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        14,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        7,
-        5
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Beast_2",
-      "position": [
-        19,
-        17
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        19,
-        5
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 9,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        8,
-        18
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        8,
-        11
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        6,
-        10
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        6,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        14,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        7,
-        5
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Beast_2",
-      "position": [
-        19,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        20,
-        4
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 10,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        9,
-        18
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        8,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        7,
-        10
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        7,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        13,
-        12
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        6,
-        4
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Beast_2",
-      "position": [
-        20,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        19,
-        4
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 11,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        10,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        7,
-        11
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        6,
-        8
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        13,
-        11
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        6,
+        2,
         3
       ],
       "details": {
@@ -495,12 +1457,12 @@
       }
     },
     {
-      "timestamp": 12,
+      "timestamp": 17,
       "type": "hazard",
-      "agent": "Beast_2",
+      "agent": "Cetanu",
       "position": [
-        19,
-        15
+        25,
+        7
       ],
       "details": {
         "damage": 3,
@@ -508,9 +1470,269 @@
       }
     },
     {
-      "timestamp": 12,
+      "timestamp": 17,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 17,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 17,
+      "type": "hazard",
+      "agent": "Beast_2",
+      "position": [
+        4,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 17,
       "type": "hazard",
       "agent": "Beast_3",
+      "position": [
+        37,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 17,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        19,
+        5
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        1,
+        27
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        1,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        9,
+        13
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        38,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 18,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        19,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        39,
+        26
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        1,
+        3
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        10,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        38,
+        3
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 19,
+      "type": "hazard",
+      "agent": "Beast_4",
       "position": [
         18,
         5
@@ -521,76 +1743,11 @@
       }
     },
     {
-      "timestamp": 12,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        9,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
+      "timestamp": 20,
       "type": "hazard",
       "agent": "Dek",
       "position": [
-        12,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        8,
-        12
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        7,
-        9
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        12,
-        12
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        26,
+        37,
         25
       ],
       "details": {
@@ -599,12 +1756,12 @@
       }
     },
     {
-      "timestamp": 13,
+      "timestamp": 20,
       "type": "hazard",
-      "agent": "Beast_1",
+      "agent": "Thia",
       "position": [
-        6,
-        4
+        0,
+        2
       ],
       "details": {
         "damage": 3,
@@ -612,753 +1769,77 @@
       }
     },
     {
-      "timestamp": 13,
+      "timestamp": 20,
       "type": "hazard",
-      "agent": "Beast_2",
+      "agent": "Elder Kaail",
+      "position": [
+        1,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 20,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        26,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 20,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 20,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        11,
+        13
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 20,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        39,
+        3
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 20,
+      "type": "hazard",
+      "agent": "Beast_4",
       "position": [
         18,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        17,
         6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 13,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        9,
-        12
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        8,
-        8
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        11,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        6,
-        3
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Beast_2",
-      "position": [
-        17,
-        17
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        16,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 14,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        11,
-        18
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        10,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        7,
-        8
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        10,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        6,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        17,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 15,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        18
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        11,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        7,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        9,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        25,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        7,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        16,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 16,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        11,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        12,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        6,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        9,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        25,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        8,
-        3
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        15,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 17,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        18
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        11,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        7,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        10,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        26,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Beast_1",
-      "position": [
-        7,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        16,
-        5
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 18,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        11,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        12,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        8,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        11,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        26,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        15,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 19,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        19
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        12,
-        14
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        8,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        12,
-        13
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        26,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        14,
-        6
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 20,
-      "type": "hazard",
-      "agent": "Beast_4",
-      "position": [
-        10,
-        18
       ],
       "details": {
         "damage": 3,
@@ -1367,159 +1848,10 @@
     },
     {
       "timestamp": 21,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Sandstorm",
-        "move_multiplier": 1.3,
-        "global_damage": 0,
-        "visibility_penalty": 2
-      }
-    },
-    {
-      "timestamp": 40,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 52,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 58,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Sandstorm",
-        "move_multiplier": 1.3,
-        "global_damage": 0,
-        "visibility_penalty": 2
-      }
-    },
-    {
-      "timestamp": 59,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Sandstorm",
-        "move_multiplier": 1.3,
-        "global_damage": 0,
-        "visibility_penalty": 2
-      }
-    },
-    {
-      "timestamp": 61,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "AcidRain",
-        "move_multiplier": 1.1,
-        "global_damage": 3,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 70,
       "type": "hazard",
       "agent": "Dek",
       "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "hazard",
-      "agent": "Thia",
-      "position": [
-        11,
-        15
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        6,
-        1
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        0,
-        7
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 70,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        3,
+        35,
         24
       ],
       "details": {
@@ -1528,49 +1860,12 @@
       }
     },
     {
-      "timestamp": 71,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Sandstorm",
-        "move_multiplier": 1.3,
-        "global_damage": 0,
-        "visibility_penalty": 2
-      }
-    },
-    {
-      "timestamp": 86,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "AcidRain",
-        "move_multiplier": 1.1,
-        "global_damage": 3,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 86,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 86,
+      "timestamp": 21,
       "type": "hazard",
       "agent": "Thia",
       "position": [
-        11,
-        15
+        0,
+        2
       ],
       "details": {
         "damage": 3,
@@ -1578,12 +1873,12 @@
       }
     },
     {
-      "timestamp": 86,
+      "timestamp": 21,
       "type": "hazard",
       "agent": "Elder Kaail",
       "position": [
-        3,
-        26
+        0,
+        3
       ],
       "details": {
         "damage": 3,
@@ -1591,12 +1886,12 @@
       }
     },
     {
-      "timestamp": 86,
+      "timestamp": 21,
       "type": "hazard",
       "agent": "Cetanu",
       "position": [
-        1,
-        4
+        27,
+        7
       ],
       "details": {
         "damage": 3,
@@ -1604,12 +1899,12 @@
       }
     },
     {
-      "timestamp": 86,
+      "timestamp": 21,
       "type": "hazard",
       "agent": "Ultimate Adversary",
       "position": [
-        25,
-        25
+        31,
+        6
       ],
       "details": {
         "damage": 3,
@@ -1617,11 +1912,50 @@
       }
     },
     {
-      "timestamp": 86,
+      "timestamp": 21,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        10,
+        13
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 21,
       "type": "hazard",
       "agent": "Beast_3",
       "position": [
-        1,
+        38,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 21,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        18,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 22,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        33,
         23
       ],
       "details": {
@@ -1630,36 +1964,12 @@
       }
     },
     {
-      "timestamp": 87,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 94,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "AcidRain",
-        "move_multiplier": 1.1,
-        "global_damage": 3,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 94,
+      "timestamp": 22,
       "type": "hazard",
-      "agent": "Dek",
+      "agent": "Thia",
       "position": [
-        12,
-        16
+        0,
+        2
       ],
       "details": {
         "damage": 3,
@@ -1667,24 +1977,11 @@
       }
     },
     {
-      "timestamp": 94,
+      "timestamp": 22,
       "type": "hazard",
       "agent": "Elder Kaail",
       "position": [
-        29,
-        29
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 94,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        1,
+        39,
         4
       ],
       "details": {
@@ -1693,1383 +1990,1054 @@
       }
     },
     {
-      "timestamp": 94,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 94,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        1,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 95,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 95,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        0,
-        29
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 95,
+      "timestamp": 22,
       "type": "hazard",
       "agent": "Cetanu",
       "position": [
-        1,
-        4
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 95,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 95,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        0,
-        24
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 96,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 96,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        29,
-        28
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 96,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        0,
-        3
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 96,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 96,
-      "type": "hazard",
-      "agent": "Beast_3",
-      "position": [
-        29,
-        25
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 97,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "AcidRain",
-        "move_multiplier": 1.1,
-        "global_damage": 3,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 97,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 97,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        0,
-        28
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 97,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        29,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 97,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 98,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 98,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        1,
-        28
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 98,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        0,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 98,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 99,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 99,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        2,
-        29
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 99,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        1,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 99,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 100,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 100,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        1,
-        0
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 100,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        0,
-        2
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 100,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 3,
-        "cause": "AcidRain"
-      }
-    },
-    {
-      "timestamp": 101,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 105,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "ElectricalStorm",
-        "move_multiplier": 1.2,
-        "global_damage": 1,
-        "visibility_penalty": 1
-      }
-    },
-    {
-      "timestamp": 105,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 105,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        29,
-        0
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 105,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        2,
-        5
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 105,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 106,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 106,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        28,
-        1
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 106,
-      "type": "hazard",
-      "agent": "Cetanu",
-      "position": [
-        2,
-        6
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 106,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 107,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        17
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 107,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        28,
-        1
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 107,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 108,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        17
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 108,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        28,
-        2
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 108,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 109,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        17
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 109,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        29,
-        3
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 109,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        27
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 110,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        14,
-        18
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 110,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        0,
-        4
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 110,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 111,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        14,
-        18
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 111,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        1,
-        3
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 111,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 112,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        14,
-        18
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 112,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        2,
-        3
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 112,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        26
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 113,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 125,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "ElectricalStorm",
-        "move_multiplier": 1.2,
-        "global_damage": 1,
-        "visibility_penalty": 1
-      }
-    },
-    {
-      "timestamp": 125,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        16,
-        20
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 125,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        2,
-        3
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 125,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        22,
-        25
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 126,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        15,
-        19
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 126,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        3,
-        2
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 126,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        22,
-        25
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 127,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "ElectricalStorm",
-        "move_multiplier": 1.2,
-        "global_damage": 1,
-        "visibility_penalty": 1
-      }
-    },
-    {
-      "timestamp": 127,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        14,
-        18
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 127,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        3,
-        1
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 127,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        22,
-        25
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 128,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        13,
-        17
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 128,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        2,
-        1
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 128,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        22,
-        25
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 129,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 129,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        1,
-        1
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 129,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        22,
-        25
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 130,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Sandstorm",
-        "move_multiplier": 1.3,
-        "global_damage": 0,
-        "visibility_penalty": 2
-      }
-    },
-    {
-      "timestamp": 139,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 150,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 161,
-      "type": "item_pickup",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        24
-      ],
-      "details": {
-        "item": "medkit",
-        "name": "Medkit",
-        "value": 17
-      }
-    },
-    {
-      "timestamp": 184,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "Calm",
-        "move_multiplier": 1.0,
-        "global_damage": 0,
-        "visibility_penalty": 0
-      }
-    },
-    {
-      "timestamp": 192,
-      "type": "item_pickup",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        21
-      ],
-      "details": {
-        "item": "medkit",
-        "name": "Medkit",
-        "value": 32
-      }
-    },
-    {
-      "timestamp": 193,
-      "type": "weather_change",
-      "agent": "system",
-      "position": null,
-      "details": {
-        "state": "ElectricalStorm",
-        "move_multiplier": 1.2,
-        "global_damage": 1,
-        "visibility_penalty": 1
-      }
-    },
-    {
-      "timestamp": 193,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 193,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        27,
+        26,
         7
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 193,
+      "timestamp": 22,
       "type": "hazard",
       "agent": "Ultimate Adversary",
       "position": [
-        24,
-        21
+        31,
+        6
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 194,
+      "timestamp": 22,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        11,
+        14
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 22,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        37,
+        1
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 22,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        18,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 23,
       "type": "hazard",
       "agent": "Dek",
       "position": [
-        12,
-        16
+        31,
+        22
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 194,
+      "timestamp": 23,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 23,
       "type": "hazard",
       "agent": "Elder Kaail",
+      "position": [
+        38,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 23,
+      "type": "hazard",
+      "agent": "Cetanu",
       "position": [
         26,
         8
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 194,
+      "timestamp": 23,
       "type": "hazard",
       "agent": "Ultimate Adversary",
       "position": [
-        24,
-        21
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 195,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 195,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        27,
-        7
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 195,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        21
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 196,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 196,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        26,
+        31,
         6
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 196,
+      "timestamp": 23,
       "type": "hazard",
-      "agent": "Ultimate Adversary",
+      "agent": "Beast_1",
       "position": [
-        24,
-        21
+        11,
+        13
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 197,
+      "timestamp": 23,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        36,
+        0
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 23,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        19,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
       "type": "hazard",
       "agent": "Dek",
       "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 197,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        27,
-        5
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 197,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        21
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 198,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 198,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        26,
-        5
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 198,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        21
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 199,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 199,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        27,
-        4
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 199,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        24,
-        21
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 200,
-      "type": "hazard",
-      "agent": "Dek",
-      "position": [
-        12,
-        16
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 200,
-      "type": "hazard",
-      "agent": "Elder Kaail",
-      "position": [
-        26,
-        4
-      ],
-      "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
-      }
-    },
-    {
-      "timestamp": 200,
-      "type": "hazard",
-      "agent": "Ultimate Adversary",
-      "position": [
-        25,
+        30,
         22
       ],
       "details": {
-        "damage": 1,
-        "cause": "ElectricalStorm"
+        "damage": 3,
+        "cause": "AcidRain"
       }
     },
     {
-      "timestamp": 200,
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Thia",
+      "position": [
+        0,
+        2
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        5
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        9
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        12,
+        14
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        36,
+        29
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 24,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        18,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        29,
+        20
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        0,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        26,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Beast_1",
+      "position": [
+        12,
+        15
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Beast_3",
+      "position": [
+        36,
+        0
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 25,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        17,
+        9
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 26,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        30,
+        20
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 26,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        0,
+        5
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 26,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        27,
+        9
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 26,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 26,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        16,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 27,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        29,
+        19
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 27,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        0,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 27,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        27,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 27,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 27,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        15,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 28,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        29,
+        19
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 28,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 28,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        26,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 28,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 28,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        14,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 29,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        28,
+        19
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 29,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        5
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 29,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 29,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 29,
+      "type": "hazard",
+      "agent": "Beast_4",
+      "position": [
+        15,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 30,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        27,
+        17
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 30,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        38,
+        4
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 30,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 30,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 31,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        28,
+        16
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 31,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        5
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 31,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 31,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 32,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        27,
+        16
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 32,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        0,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 32,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        26,
+        9
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 32,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        31,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 33,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        27,
+        14
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 33,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 33,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 33,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        29,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 34,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        26,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 34,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 34,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 34,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        27,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 35,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        26,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 35,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        0,
+        6
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 35,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        24,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 35,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        27,
+        10
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 36,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        24,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 36,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        39,
+        7
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 36,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        25,
+        11
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 36,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        27,
+        9
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 37,
+      "type": "hazard",
+      "agent": "Dek",
+      "position": [
+        22,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 37,
+      "type": "hazard",
+      "agent": "Elder Kaail",
+      "position": [
+        38,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 37,
+      "type": "hazard",
+      "agent": "Cetanu",
+      "position": [
+        26,
+        12
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 37,
+      "type": "hazard",
+      "agent": "Ultimate Adversary",
+      "position": [
+        27,
+        8
+      ],
+      "details": {
+        "damage": 3,
+        "cause": "AcidRain"
+      }
+    },
+    {
+      "timestamp": 37,
       "type": "simulation_outcome",
       "agent": "system",
       "position": null,
       "details": {
-        "result": "timeout",
-        "turns": 200,
-        "reason": "turn_limit"
+        "result": "lose",
+        "turns": 37,
+        "reason": "dek_dead"
       }
     }
   ]
